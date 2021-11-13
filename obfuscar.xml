@@ -1,9 +1,0 @@
-﻿<?xml version='1.0'?>
-<Obfuscator>
-	<Var name="InPath" value=".\bin\Debug\netcoreapp3.1" />
-	<Var name="OutPath" value=".\Obfuscator_Output" />
-	<Var name="HidePrivateApi" value="true" />
-
-	<Module file="$(InPath)\CoreliumYouTubeKit.dll" />
-	<Module file="$(InPath)\CynthMusic.dll" />
-</Obfuscator>
