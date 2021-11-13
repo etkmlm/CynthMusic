@@ -1,0 +1,211 @@
+﻿<Window x:Class="CynthMusic.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CynthMusic" xmlns:tb="http://www.hardcodet.net/taskbar"
+        mc:Ignorable="d"
+        Title="Cynth Müzik" Height="548" Width="850" WindowStyle="None" Icon="/cynth.png" Loaded="Window_Loaded">
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
+    </WindowChrome.WindowChrome>
+    <Grid x:Name="panelMain" Background="#ff2c2929">
+        <tb:TaskbarIcon x:Name="icon" IconSource="/favicon.ico">
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu x:Name="ctxNotify" Style="{StaticResource SuperContext}">
+                    <MenuItem x:Name="btnSHWindow" Header="Gizle"/>
+                    <MenuItem x:Name="btnPlayContext" Header="Oynat"/>
+                    <MenuItem x:Name="btnPreviousContext" Header="Önceki"/>
+                    <MenuItem x:Name="btnNextContext" Header="Sonraki"/>
+                    <MenuItem x:Name="btnStop" Header="Durdur"/>
+                    <MenuItem x:Name="btnExitContext" Header="Çıkış"/>
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+        </tb:TaskbarIcon>
+        <MediaElement Name="media" Visibility="Hidden" LoadedBehavior="Manual" Volume="0.5"/>
+        <Grid x:Name="panelTop" Margin="0,0,0,0" Height="80" VerticalAlignment="Top" Background="#FF2A2F2F">
+            <Image Margin="10,5,0,0" Width="60" Height="60" Source="/cynth.png" HorizontalAlignment="Left"/>
+            <Label Visibility="Hidden" Content="Cynth" Foreground="White" FontSize="40" Margin="10,0,0,0"/>
+            <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="Red" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
+            <Button x:Name="btnMaximize" Content="▢" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="Orange" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,40,0"/>
+            <Button x:Name="btnMinimize" Content="_" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="Green" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,70,0"/>
+            <Button x:Name="btnInfo" Content="i" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="SaddleBrown" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,100,0"/>
+        </Grid>
+        <Grid Height="70" Margin="10,80,150,0"  VerticalAlignment="Top" HorizontalAlignment="Stretch">
+            <Label Foreground="White" Margin="10,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="lblState" Content="Boş" FontSize="15"/>
+            <Slider IsMoveToPointEnabled="True" Delay="300" x:Name="sldPosition" Margin="10,0,0,5" Foreground="#FF0D7F64"  Value="0" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Style="{StaticResource SuperSlider}" />
+        </Grid>
+        <Grid Width="100" Margin="10,150,0,10" HorizontalAlignment="Left">
+            <Border Name="maskMenu" Background="#FF2C2929" CornerRadius="5" />
+            <Grid x:Name="panelMenu" Background="#FF16191D">
+                <Grid.OpacityMask>
+                    <VisualBrush Visual="{Binding ElementName=maskMenu}"/>
+                </Grid.OpacityMask>
+                <Button x:Name="btnListNow" Style="{StaticResource SuperButton}" Content="Şu Anda" Background="Transparent" Height="50" FontSize="15" Foreground="White" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                <Button x:Name="btnListLists" Style="{StaticResource SuperButton}" Content="Listelerim" Background="Transparent" Height="40" FontSize="15" Foreground="White" Margin="0,60,0,0" VerticalAlignment="Top"/>
+                <Button x:Name="btnListFavourites" Style="{StaticResource SuperButton}" Content="Favorilerim" Background="Transparent" Height="40" FontSize="15" Foreground="White" Margin="0,110,0,0" VerticalAlignment="Top"/>
+                <Button x:Name="btnExplore" Style="{StaticResource SuperButton}" Content="Keşfet" Background="Transparent" Height="40" FontSize="15" Foreground="White" Margin="0,160,0,0" VerticalAlignment="Top"/>
+                <Button x:Name="btnSettings" Style="{StaticResource SuperButton}" Content="Ayarlar" Background="Transparent" Height="40" FontSize="15" Foreground="White" Margin="0,0,0,10" VerticalAlignment="Bottom"/>
+            </Grid>
+        </Grid>
+        <Grid Margin="150,150,150,10">
+            <Grid x:Name="panelListing">
+                <Border Name="maskContainer" Background="#FF2C2929" CornerRadius="5"/>
+                <ListView Visibility="Visible" x:Name="lvPlaying" Style="{StaticResource SuperListView}">
+                    <ListView.OpacityMask>
+                        <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
+                    </ListView.OpacityMask>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="#" Width="35" DisplayMemberBinding="{Binding Index}"/>
+                            <GridViewColumn Header="İsim" Width="250" DisplayMemberBinding="{Binding Item.Music.Name}"/>
+                            <GridViewColumn Header="Sanatçı" Width="100" DisplayMemberBinding="{Binding Item.Music.Author}"/>
+                            <GridViewColumn Header="Uzunluk" Width="75" DisplayMemberBinding="{Binding Item.Music.LengthString}"/>
+                            <GridViewColumn Width="50">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource SuperButton}" Margin="0,-6,0,0" Background="Transparent" Foreground="{Binding Item.Foreground}" FontSize="20" Content="♥" Height="20" Width="20" Loaded="LikeButton_Loaded" Click="LikeButton_Click" MouseEnter="LikeButton_Enter" MouseLeave="LikeButton_Leave"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.Music.PlayURL}"/>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.Music.SaveIdentity}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <ListView Visibility="Hidden" x:Name="lvPlaylists" Style="{StaticResource SuperListView}">
+                    <ListView.OpacityMask>
+                        <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
+                    </ListView.OpacityMask>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="İsim" Width="225" DisplayMemberBinding="{Binding Item.Name}"/>
+                            <GridViewColumn Header="Oluşturan" Width="150" DisplayMemberBinding="{Binding Item.Author}"/>
+                            <GridViewColumn Header="Toplam" Width="75" DisplayMemberBinding="{Binding Item.MusicCount}"/>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding Index}"/>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.ID}"/>
+                            <GridViewColumn Width="120">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Button Style="{StaticResource SuperButton}" HorizontalAlignment="Left" Margin="0,0,0,0" Background="Transparent" Foreground="White" FontSize="15" Content="-" Height="20" Width="10" Click="DelPlaylist_Click"/>
+                                            <Button Style="{StaticResource SuperButton}" HorizontalAlignment="Left" Margin="15,0,0,0" Background="Transparent" Foreground="White" FontSize="10" Content="✎" Height="20" Width="20" Click="EditPlaylist_Click" />
+                                            <Button Style="{StaticResource SuperButton}" HorizontalAlignment="Left" Margin="40,0,0,0" Background="Transparent" Foreground="White" FontSize="13" Content="Ꮖ" Height="20" Width="10" Click="RenamePlaylist_Click" />
+                                            <Button Style="{StaticResource SuperButton}" HorizontalAlignment="Left" Margin="65,0,0,0" Background="Transparent" Foreground="White" FontSize="13" Content="🗎" Height="20" Width="10" Click="ExportPlaylist_Click" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <ListView Visibility="Hidden" x:Name="lvPlaylist" Style="{StaticResource SuperListView}">
+                    <ListView.OpacityMask>
+                        <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
+                    </ListView.OpacityMask>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="#" Width="35" DisplayMemberBinding="{Binding Index}"/>
+                            <GridViewColumn Header="İsim" Width="250" DisplayMemberBinding="{Binding Item.Name}"/>
+                            <GridViewColumn Header="Sanatçı" Width="100" DisplayMemberBinding="{Binding Item.Author}"/>
+                            <GridViewColumn Header="Uzunluk" Width="75" DisplayMemberBinding="{Binding Item.LengthString}"/>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.SaveIdentity}"/>
+                            <GridViewColumn Width="50">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Button Style="{StaticResource SuperButton}" HorizontalAlignment="Left" Margin="0,0,0,0" Background="Transparent" Foreground="White" FontSize="15" Content="-" Height="20" Width="20" Click="DelMusic_Click" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <ListView Visibility="Hidden" x:Name="lvFavourites" Style="{StaticResource SuperListView}">
+                    <ListView.OpacityMask>
+                        <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
+                    </ListView.OpacityMask>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="İsim" Width="280" DisplayMemberBinding="{Binding Item.Name}"/>
+                            <GridViewColumn Header="Sanatçı" Width="200" DisplayMemberBinding="{Binding Item.Author}"/>
+                            <GridViewColumn Width="50">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource SuperButton}" Margin="0,0,0,0" Background="Transparent" Foreground="White" FontSize="12" Content="✖" Height="20" Width="20" MouseEnter="DelFav_Enter" MouseLeave="DelFav_Leave" Click="DelFav_Click"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.SaveIdentity}"/>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.ID}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+                <ListView Visibility="Hidden" x:Name="lvLocations" Style="{StaticResource SuperListView}">
+                    <ListView.OpacityMask>
+                        <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
+                    </ListView.OpacityMask>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.ID}"/>
+                            <GridViewColumn Header="Konum" Width="450" DisplayMemberBinding="{Binding Item.Path}"/>
+                            <GridViewColumn Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Button Style="{StaticResource SuperButton}" HorizontalAlignment="Left" Margin="0,0,0,0" Background="Transparent" Foreground="White" FontSize="15" Content="-" Height="20" Width="20" Click="DelLocation_Click" />
+                                            <Button Style="{StaticResource SuperButton}" Margin="0,0,0,0" Background="Transparent" Foreground="White" FontSize="15" Content="+" Height="20" Width="20" Click="AddLocationPlaylist_Click" />
+                                            <Button Style="{StaticResource SuperButton}" Margin="40,0,0,0" Background="Transparent" Foreground="White" FontSize="16" Content="ᐅ" Height="20" Width="20" Click="PlayLocation_Click" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Grid>
+            <Button x:Name="btnAdd" Width="30" Height="30" Style="{StaticResource PlayerButton}" Content="+" Foreground="White" FontSize="15" Margin="10,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+            <Button x:Name="btnPlayList" Width="30" Height="30" Style="{StaticResource PlayerButton}" Content="ᐅ" Foreground="White" FontSize="12" Margin="50,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+            <Button x:Name="btnImport" Visibility="Hidden" Width="30" Height="30" Style="{StaticResource PlayerButton}" Content="🗁" Foreground="White" FontSize="11" Margin="90,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+
+            <Grid Visibility="Hidden" x:Name="inpAddLocation" Margin="10,0,0,45" Width="250" Height="75" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF2B2B2B">
+                <Grid.OpacityMask>
+                    <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
+                </Grid.OpacityMask>
+                <Label Content="Bir Konum Girin" Focusable="False" Margin="2,2,0,0" Width="Auto" Height="Auto" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="15" Foreground="White"/>
+                <Button x:Name="btnSelectLocation" Focusable="False" Content="..." Margin="0,5,5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="25"  Background="#FF252025" Foreground="White" Style="{StaticResource SuperButton}"/>
+                <TextBox BorderThickness="0" x:Name="txtAddLocation" Style="{StaticResource SuperTextBox}" Margin="10,0,10,10" Height="30" VerticalAlignment="Bottom" Foreground="White" Background="#FF252323"/>
+            </Grid>
+            <Grid Visibility="Hidden" x:Name="inpPlaylistName" Margin="0,0,10,10" Width="250" Height="75" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#FF2B2B2B">
+                <Grid.OpacityMask>
+                    <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
+                </Grid.OpacityMask>
+                <Label Content="Bir İsim Girin" Margin="2,2,0,0" Width="Auto" Height="Auto" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="15" Foreground="White"/>
+                <TextBox BorderThickness="0" x:Name="txtNamePlaylist" Style="{StaticResource SuperTextBox}" Margin="10,0,10,10" Height="30" VerticalAlignment="Bottom" Foreground="White" Background="#FF252323"/>
+            </Grid>
+            <TextBox Visibility="Visible" BorderThickness="0" x:Name="inpPlaylistSearch" Background="#FF16191D" Foreground="White" Style="{StaticResource SuperTextBox}" MinWidth="200" MinHeight="30" Margin="0,0,30,10" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+        </Grid>
+        <Grid HorizontalAlignment="Right" Margin="0,90,10,10" Width="90">
+            <Border Name="maskPlayer" BorderThickness="0" Background="#FF2C2929" CornerRadius="10"/>
+            <Grid x:Name="panelPlayer">
+                <Grid.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FF0A8254"/>
+                        <GradientStop Color="#FF113159" Offset="1"/>
+                    </LinearGradientBrush>
+                </Grid.Background>
+                <Grid.OpacityMask>
+                    <VisualBrush Visual="{Binding ElementName=maskPlayer}"/>
+                </Grid.OpacityMask>
+                <Slider IsMoveToPointEnabled="True" Style="{StaticResource SuperSlider}" Foreground="#FF0D7F64" Name="sldVolume" Margin="0,10,0,0" VerticalAlignment="Top" Height="10"/>
+                <Button Name="btnPrevious" Style="{StaticResource PlayerButton}" Foreground="White" Width="45" Height="45" Background="White" Content="ᐊ" FontSize="18" Margin="22,90,22,0" VerticalAlignment="Top"/>
+                <Button Name="btnPlay" Style="{StaticResource PlayerButton}" Foreground="White" Width="60" Height="60" Background="White" Content="ᐅ" FontSize="30"/>
+                <Button Name="btnNext" Style="{StaticResource PlayerButton}" Foreground="White" Width="45" Height="45" Background="White" Content="ᐅ" FontSize="18" Margin="22,0,22,90" VerticalAlignment="Bottom"/>
+                <Button Style="{StaticResource SuperButton}" Name="btnInfinite" FontSize="20" Height="30" Margin="10,0,55,10" Background="Transparent" Foreground="White" Content="∞" VerticalAlignment="Bottom"/>
+                <Button Style="{StaticResource SuperButton}" Name="btnShuffle" Width="25" FontSize="15" Height="30" Margin="0,0,10,10" Background="Transparent" Foreground="White" Content="🎲" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+            </Grid>
+        </Grid>
+    </Grid>
+
+</Window>

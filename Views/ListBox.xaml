@@ -1,0 +1,24 @@
+﻿<Window x:Class="CynthMusic.Views.ListBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CynthMusic.Views"
+        mc:Ignorable="d"
+        Title="Liste Oluştur" Height="250" Width="300" WindowStyle="None" WindowStartupLocation="CenterScreen">
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
+    </WindowChrome.WindowChrome>
+    <Grid Background="#FF2C2929">
+        <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="15" Height="15" FontSize="8" Background="Red" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
+        <Label Content="Liste Oluştur" Foreground="White" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="20"/>
+        <Grid Margin="20,75,20,40" Height="50" VerticalAlignment="Top">
+            <TextBox x:Name="txtURL" Background="#FF16191D" BorderThickness="0" Height="30" MinWidth="220" Foreground="White" Style="{StaticResource SuperTextBox}"/>
+            <Button x:Name="btnApplyURL" Background="#FF2C2929" Margin="0,0,5,0" Height="20" HorizontalAlignment="Right" Width="25" Content=">" Foreground="White" Style="{StaticResource SuperButton}"/>
+        </Grid>
+        <Separator Margin="45,140,45,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="txtName" Background="#FF16191D" BorderThickness="0" Margin="20,165,20,0" VerticalAlignment="Top" Height="30" MinWidth="220" Foreground="White" Style="{StaticResource SuperTextBox}"/>
+        <Button x:Name="btnApply" Background="#FF16191D" FontSize="8" Foreground="White" Content="✓" Margin="0,0,10,10" Style="{StaticResource SuperButton}" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+        <Image Name="imgLoading" Visibility="Hidden" HorizontalAlignment="Left" Height="10" Margin="231,225,0,0" VerticalAlignment="Top" Width="35" Source="/Views/loading.gif"/>
+    </Grid>
+</Window>

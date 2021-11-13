@@ -1,0 +1,77 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <AssemblyVersion>0.8.0.0</AssemblyVersion>
+    <FileVersion>0.8.0.0</FileVersion>
+    <Version>0.8.0</Version>
+    <Platforms>AnyCPU;x86</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>9.0</LangVersion>
+    <Company>Corelium INC</Company>
+    <Description>A highly useful music app!</Description>
+    <Copyright>All Rights Reserved @ Corelium INC</Copyright>
+    <Authors>Corelium INC</Authors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="cynth.png" />
+    <None Remove="favicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
+    <PackageReference Include="NAudio" Version="2.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Obfuscar" Version="2.2.31">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Linq.Async" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CynthCore\CynthCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CoreliumYouTubeKit">
+      <HintPath>..\..\CoreliumYouTubeKit\bin\Debug\netcoreapp3.1\CoreliumYouTubeKit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="cynth.png" />
+    <Resource Include="favicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\ColorBox.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\ListBox.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\ColorBox.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\ListBox.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="&quot;$(Obfuscar)&quot; obfuscar.xml" />
+  </Target>
+
+</Project>

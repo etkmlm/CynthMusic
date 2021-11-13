@@ -1,0 +1,33 @@
+﻿<Window x:Class="CynthMusic.Views.YouTubeSelectBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CynthMusic.Views"
+        mc:Ignorable="d"
+        Title="Müziği Seç" Height="300" Width="400" WindowStyle="None" WindowStartupLocation="CenterScreen">
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
+    </WindowChrome.WindowChrome>
+    <Grid Background="#FF2C2929">
+        <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="15" Height="15" FontSize="8" Background="Red" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
+        <Label Content="Müziği Seç" Foreground="White" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="20"/>
+        <Grid Margin="10,70,10,40" MinHeight="150">
+            <Border Name="maskMenu" Background="#FF16191D" CornerRadius="10" />
+            <ListView Margin="0,0,0,0" x:Name="lvMusics" FontSize="9" Style="{StaticResource SuperListView}" SelectionMode="Single">
+                <ListView.OpacityMask>
+                    <VisualBrush Visual="{Binding ElementName=maskMenu}"/>
+                </ListView.OpacityMask>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="İsim" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                        <GridViewColumn Header="Sanatçı" Width="50" DisplayMemberBinding="{Binding Author}"/>
+                        <GridViewColumn Width="75" DisplayMemberBinding="{Binding YouTubeUri}"/>
+                        <GridViewColumn Width="0" DisplayMemberBinding="{Binding SaveIdentity}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+        <Button x:Name="btnApply" Background="#FF16191D" FontSize="8" Foreground="White" Content="✓" Margin="0,0,10,10" Style="{StaticResource SuperButton}" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+    </Grid>
+</Window>
