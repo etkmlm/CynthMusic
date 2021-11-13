@@ -1,5 +1,5 @@
 # CynthMusic
-Fast, useful and lightweight music program.
+Fast, useful and basic music program.
 (Version 0.8 doesn't support multi-language.)
 
 ## Warning
