@@ -70,8 +70,4 @@
     </Page>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="&quot;$(Obfuscar)&quot; obfuscar.xml" />
-  </Target>
-
 </Project>

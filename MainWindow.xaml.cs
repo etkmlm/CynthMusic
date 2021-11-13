@@ -61,13 +61,14 @@ namespace CynthMusic
         private readonly MMDeviceEnumerator enumerator;
         private readonly MMDevice device;
         private readonly InteropService interop;
+        private readonly UpdateService update;
 
         public MainWindow()
         {
             InitializeComponent();
 
             Initialize();
-            
+
             YouTubeClient client = new();
             DataService data = new();
             musicService = new(data, client);
@@ -96,6 +97,7 @@ namespace CynthMusic
                     btnPlayContext.Header = "Duraklat";
                 }
             });
+            update = new UpdateService();
 
             CheckDB(data);
             SwitchMenu(0);
@@ -131,6 +133,7 @@ namespace CynthMusic
                 addonManager.AddLocation(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Music").GetAwaiter().GetResult();
                 configService.Set("FIRST", "FALSE");
             }
+            CheckUpdate();
         }
 
         #region Methods
@@ -139,6 +142,20 @@ namespace CynthMusic
         {
             this.volume = volume;
             sldVolume.Value = nowValue == 0 ? 0 : volume;
+        }
+
+        private async void CheckUpdate() =>
+            await Dispatcher.InvokeAsync(async () =>
+            {
+                var isUp = await update.CheckUpdate(GetVersion());
+                if (isUp.Item1)
+                    new AlertBox("Uyarı", $"Yeni bir sürüm (v{isUp.Item2.ToString().Replace(',', '.')}) mevcut!").ShowDialog();
+            });
+
+        public static string GetVersion()
+        {
+            Version version = Application.ResourceAssembly.GetName().Version;
+            return $"{version.Major}.{version.Minor}";
         }
 
         private void PositionChanged()
@@ -448,7 +465,6 @@ namespace CynthMusic
         #region Init
         private void Initialize()
         {
-            
             sldVolume.ValueChanged += (a, b) =>
             {
                 media.Volume = b.NewValue / 100;
@@ -495,8 +511,8 @@ namespace CynthMusic
             };
             btnMaximize.Click += (a, b) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
             btnMinimize.Click += (a, b) => WindowState = WindowState.Minimized;
-            Version version = Application.ResourceAssembly.GetName().Version;
-            btnInfo.Click += (a, b) => new AlertBox("Hakkında", $"Ürün: Cynth Müzik\nSürüm: {version.Major}.{version.Minor}\nYapımcı: Furkan M Yılmaz / Corelium INC").ShowDialog();
+            
+            btnInfo.Click += (a, b) => new AlertBox("Hakkında", $"Ürün: Cynth Müzik\nSürüm: {GetVersion()}\nYapımcı: Furkan M Yılmaz / Corelium INC").ShowDialog();
             btnPlay.Click += (a, b) =>
             {
                 if (Keyboard.Modifiers == ModifierKeys.Shift)
