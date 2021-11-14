@@ -5,9 +5,9 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
-    <AssemblyVersion>0.8.0.0</AssemblyVersion>
-    <FileVersion>0.8.0.0</FileVersion>
-    <Version>0.8.0</Version>
+    <AssemblyVersion>0.81.0.0</AssemblyVersion>
+    <FileVersion>0.81.0.0</FileVersion>
+    <Version>0.81</Version>
     <Platforms>AnyCPU;x86</Platforms>
   </PropertyGroup>
 
@@ -28,10 +28,6 @@
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
     <PackageReference Include="NAudio" Version="2.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Obfuscar" Version="2.2.31">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
 

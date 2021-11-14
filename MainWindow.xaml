@@ -24,12 +24,12 @@
         </tb:TaskbarIcon>
         <MediaElement Name="media" Visibility="Hidden" LoadedBehavior="Manual" Volume="0.5"/>
         <Grid x:Name="panelTop" Margin="0,0,0,0" Height="80" VerticalAlignment="Top" Background="#FF2A2F2F">
-            <Image Margin="10,5,0,0" Width="60" Height="60" Source="/cynth.png" HorizontalAlignment="Left"/>
+            <Image Margin="10,-5,0,0" Width="60" Height="60" Source="/cynth.png" HorizontalAlignment="Left"/>
             <Label Visibility="Hidden" Content="Cynth" Foreground="White" FontSize="40" Margin="10,0,0,0"/>
-            <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="Red" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
-            <Button x:Name="btnMaximize" Content="▢" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="Orange" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,40,0"/>
-            <Button x:Name="btnMinimize" Content="_" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="Green" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,70,0"/>
-            <Button x:Name="btnInfo" Content="i" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="SaddleBrown" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,100,0"/>
+            <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="#FF05191D" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
+            <Button x:Name="btnMaximize" Content="▢" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="#FF16191D" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,40,0"/>
+            <Button x:Name="btnMinimize" Content="_" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="#FF16191D" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,70,0"/>
+            <Button x:Name="btnInfo" Content="i" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="#FF16191D" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,100,0"/>
         </Grid>
         <Grid Height="70" Margin="10,80,150,0"  VerticalAlignment="Top" HorizontalAlignment="Stretch">
             <Label Foreground="White" Margin="10,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="lblState" Content="Boş" FontSize="15"/>
