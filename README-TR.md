@@ -2,7 +2,7 @@
 Hızlı, kullanışlı ve basit müzik programı.
 
 ## Uyarı
-Programın düzgün çalışması için [KLite Codec Pack](https://codecguide.com/download_kl) paketini indirmeniz gerekmektedir. (Basit sürüm yeterli.)
+Programın düzgün çalışması için [KLite Codec Pack](https://codecguide.com/download_kl.htm) paketini indirmeniz gerekmektedir. (Basit sürüm yeterli.)
 
 ## Lisans
 
