@@ -76,15 +76,6 @@ namespace CynthMusic.Management
             srcPlaylists.Add(list);
             return list.ID;
         }
-        private async Task UpdateAsync(Orderable<IMusicList> list)
-        {
-            list.Item = await GetAsync(list.Item.ID);
-            await lvPlaylists.Dispatcher.InvokeAsync(() =>
-            {
-                srcPlaylists.SetItem(list.Index - 1, list);
-                lvPlaylists.Items.Refresh();
-            });
-        }
         public async Task<bool> LoadPlaylist(Button btn = null)
         {
             var item = srcPlaylists.ObjectConvert(btn.DataContext);
@@ -101,21 +92,22 @@ namespace CynthMusic.Management
         #endregion
 
         #region Musics
-        public async Task<bool> DeleteMusicAsync(Button btn)
+        public async Task DeleteMusicAsync(Button btn)
         {
             var item = srcMusics.ObjectConvert(btn.DataContext);
             srcMusics.DeleteItem(item.Value);
-            await UpdateMusicsAsync(loadedPlaylistId, srcMusics.Select(x => x.Item));
-
-            if (PlayerService.PlayingListID == loadedPlaylistId)
-                await player.RemoveMusicAsync(item.Value.Index - 1);
-            return true;
-        }
-        public async Task AddMusicsAsync(IMusicList list, IEnumerable<IMusic> musics)
-        {
-            await UpdateMusicsAsync(list.ID, list.Musics.Concat(musics));
             await App.Current.Dispatcher.InvokeAsync(async () =>
             {
+                await UpdateMusicsAsync(loadedPlaylistId, srcMusics.Select(x => x.Item));
+
+                if (PlayerService.PlayingListID == loadedPlaylistId)
+                    player.RemoveMusic(item.Value.Index - 1);
+            });
+        }
+        public async Task AddMusicsAsync(IMusicList list, IEnumerable<IMusic> musics) =>
+            await App.Current.Dispatcher.InvokeAsync(async () =>
+            {
+                await UpdateMusicsAsync(list.ID, list.Musics.Concat(musics));
                 bool a = loadedPlaylistId == PlayerService.PlayingListID;
                 foreach (var x in musics)
                 {
@@ -134,23 +126,18 @@ namespace CynthMusic.Management
                     }
                 }
             });
-        }
         public async Task UpdateMusicsAsync(int id, IEnumerable<IMusic> musics)
         {
             string strMsc = ConvertMusicListToString(musics);
             await UpdateMusics(id, strMsc);
-            await UpdateAsync(srcPlaylists.FirstOrDefault(x => x.Item.ID == id));
+            var x = srcPlaylists.FirstOrDefault(x => x.Item.ID == id);
+            x.Item = await GetAsync(x.Item.ID);
+            srcPlaylists.SetItem(x.Index - 1, x);
+            lvPlaylists.Items.Refresh();
         }
         #endregion
 
         #region Utils
-        public async Task<MusicList> RepairAsync(MusicList list) =>
-            await Task.Run(() =>
-            {
-                var musics = list.Musics.Where(x => x != null);
-                list.Musics = musics;
-                return list;
-            });
         public IEnumerable<Orderable<IMusic>> Filter(string q) =>
             string.IsNullOrWhiteSpace(q) ? srcMusics : 
             srcMusics.Where(x => 

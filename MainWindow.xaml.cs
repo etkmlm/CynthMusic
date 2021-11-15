@@ -56,12 +56,13 @@ namespace CynthMusic
         private string switchedLocationIdentity;
         private int listIdToRename = -1;
         public double volume = 50;
-        private float oldMaster;
 
         private readonly MMDeviceEnumerator enumerator;
         private readonly MMDevice device;
         private readonly InteropService interop;
         private readonly UpdateService update;
+
+        private readonly Brush bottom;
 
         public MainWindow()
         {
@@ -74,28 +75,16 @@ namespace CynthMusic
             musicService = new(data, client);
 
             playlistManager = new(ref lvPlaylists, ref lvPlaylist, ref lvPlaying, data, musicService, client);
-            playerService = new(ref lvPlaying, ref media, musicService, PositionChanged, PlayPrepare, () => Dispatcher.Invoke(() => btnPlay.Content = "ᐅ"), SetState, (a) => icon.ToolTipText = a);
+            playerService = new(ref lvPlaying, ref media, musicService, (a) => icon.ToolTipText = a);
             addonManager = new(ref lvLocations, ref lvFavourites, musicService);
             enumerator = new MMDeviceEnumerator();
             device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             device.AudioEndpointVolume.OnVolumeNotification += async (a) => await Dispatcher.InvokeAsync(() =>
             {
-                if (!GetBool("STM") || oldMaster != a.MasterVolume)
-                {
-                    oldMaster = a.MasterVolume;
+                if (!GetBool("STM"))
                     return;
-                }
-                playerService.TogglePlay();
-                if (a.Muted)
-                {   
-                    btnPlay.Content = "ᐅ";
-                    btnPlayContext.Header = "Oynat";
-                }
-                else if (!a.Muted)
-                {
-                    btnPlay.Content = "| |";
-                    btnPlayContext.Header = "Duraklat";
-                }
+                SetPlayState(!a.Muted);
+                playerService.TogglePlay(!a.Muted);
             });
             update = new UpdateService();
 
@@ -121,12 +110,13 @@ namespace CynthMusic
                 b.Handled = true;
             };
 
+            bottom = panelBottom.Background;
             RefreshTheme();
 
             Restore();
 
             interop = new InteropService(true);
-            interop.PlayPausePress += async () => await Dispatcher.InvokeAsync(() => PlayPrepare());
+            interop.PlayPausePress += async () => await Dispatcher.InvokeAsync(() => SetPlayState(playerService.TogglePlay()));
 
             if (GetBool("FIRST"))
             {
@@ -137,13 +127,11 @@ namespace CynthMusic
         }
 
         #region Methods
-        private void SetState(string state) => Dispatcher.Invoke(() => lblState.Content = state);
         public void SetVolume(double nowValue, double volume)
         {
             this.volume = volume;
             sldVolume.Value = nowValue == 0 ? 0 : volume;
         }
-
         private async void CheckUpdate() =>
             await Dispatcher.InvokeAsync(async () =>
             {
@@ -151,56 +139,25 @@ namespace CynthMusic
                 if (isUp.Item1)
                     new AlertBox("Uyarı", $"Yeni bir sürüm (v{isUp.Item2.ToString().Replace(',', '.')}) mevcut!").ShowDialog();
             });
-
         public static string GetVersion()
         {
             Version version = Application.ResourceAssembly.GetName().Version;
             return $"{version.Major}.{version.Minor}";
         }
-
-        private void PositionChanged()
-        {
-            try
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    if (media.BufferingProgress != 0 && media.BufferingProgress != 1)
-                    {
-                        sldPosition.Foreground = new SolidColorBrush(Color.FromRgb(200, 170, 20));
-                        sldPosition.Maximum = 100;
-                        sldPosition.Value = media.BufferingProgress * 100;
-                    }
-                    else
-                    {
-                        sldPosition.Foreground = new SolidColorBrush(Color.FromRgb(13, 127, 100));
-                        sldPosition.Maximum = media.NaturalDuration.HasTimeSpan ? media.NaturalDuration.TimeSpan.TotalSeconds : 0;
-                        sldPosition.Value = media.Position.TotalSeconds;
-                    }
-                });
-            }
-            catch (Exception)
-            {
-
-            }
-        }
-
         private async void CheckDB(DataService service)
         {
             if (DataService.Test())
                 return;
             await service.BuildDatabase();
         }
-
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
             DragMove();
         }
-        public void PlayPrepare()
+        public void SetPlayState(bool playing)
         {
-            if (media.Source == null || !media.Source.IsAbsoluteUri)
-                return;
-            if (!playerService.TogglePlay())
+            if (!playing)
             {
                 btnPlay.Content = "ᐅ";
                 btnPlayContext.Header = "Oynat";
@@ -210,7 +167,6 @@ namespace CynthMusic
                 btnPlay.Content = "| |";
                 btnPlayContext.Header = "Duraklat";
             }
-                
         }
         public void SwitchVisibility()
         {
@@ -253,17 +209,6 @@ namespace CynthMusic
             inpPlaylistSearch.Visibility = menu == 2 ? Visibility.Visible : Visibility.Hidden;
             btnImport.Visibility = menu == 1 ? Visibility.Visible : Visibility.Hidden;
         }
-        private void Stop()
-        {
-            playerService.Stop();
-            btnPlay.Content = "ᐅ";
-            btnPlayContext.Header = "Oynat";
-            sldPosition.Value = 0;
-            lblState.Content = "Boş";
-            btnShuffle.Foreground = new SolidColorBrush(Colors.White);
-        }
-        public void CancelToken() =>
-            playerService.CancelToken();
         private void Shuffle()
         {
             if (!playerService.IsPlayingList)
@@ -280,7 +225,6 @@ namespace CynthMusic
                 btnShuffle.Foreground = new LinearGradientBrush(Colors.Red, Colors.Aqua, 45);
             }
         }
-
         private void Infinite()
         {
             if (!playerService.isLoop && !playerService.isListLoop)
@@ -308,10 +252,8 @@ namespace CynthMusic
         }
         public bool GetBool(string column) =>
             configService.Get(column).ToLower() == "true";
-
         public async void Restore() =>
             await playerService.RestoreState();
-
         public Color? GetColor(string column, bool d = false)
         {
             string[] spl = (d ? configService.GetDefault(column) : configService.Get(column)).Split(',');
@@ -331,12 +273,13 @@ namespace CynthMusic
             string back = configService.Get("BACKGROUND");
             if (IsValidImage(back))
             {
-                panelTop.Background = new SolidColorBrush(Colors.Transparent);
+                panelBottom.Background = new SolidColorBrush(Colors.Transparent);
                 panelMain.Background = new ImageBrush(new BitmapImage(new Uri(back)));
             }
             else
             {
-                panelTop.Background = new SolidColorBrush(GetColor("BTOP") ?? Color.FromRgb(42, 47, 47));
+                var x = GetColor("BTOP");
+                panelBottom.Background = x == null ? new SolidColorBrush(x.Value) : bottom;
                 panelMain.Background = new SolidColorBrush(GetColor("BGENERAL") ?? Color.FromRgb(41, 41, 41));
             }
             double opacity = (double)int.Parse(configService.Get("BGOPACITY")) / 100;
@@ -363,13 +306,10 @@ namespace CynthMusic
         #region Events
         private async void LikeButton_Click(object sender, RoutedEventArgs e) =>
             await addonManager.AddFavourite(sender as Button);
-
         private async void DelFav_Click(object sender, RoutedEventArgs e) =>
             await addonManager.DeleteFavourite(sender as Button);
-
         private async void DelLocation_Click(object sender, RoutedEventArgs e) =>
                 await addonManager.DeleteLocation(sender as Button);
-
         private void AddLocationPlaylist_Click(object sender, RoutedEventArgs e)
         {
             Button btn = sender as Button;
@@ -377,7 +317,6 @@ namespace CynthMusic
             inpPlaylistName.Visibility = inpPlaylistName.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
             txtNamePlaylist.Focus();
         }
-
         private void LikeButton_Enter(object sender, MouseEventArgs e)
         {
             Button btn = sender as Button;
@@ -409,23 +348,19 @@ namespace CynthMusic
                 btn.Foreground = new SolidColorBrush(Colors.Aquamarine);
             btn.Tag = isFavourite;
         }
-
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             await playlistManager.LoadPlaylists();
             await addonManager.LoadFavourites();
             await addonManager.LoadLocations();
         }
-
         private async void PlayLocation_Click(object sender, RoutedEventArgs e)
         {
             await playerService.PlayLocation(sender as Button);
             SwitchMenu(0);
         }
-
         private async void DelPlaylist_Click(object sender, RoutedEventArgs e) =>
             await playlistManager.DeletePlaylistAsync(sender as Button);
-
         private async void EditPlaylist_Click(object sender, RoutedEventArgs e)
         {
             if (await playlistManager.LoadPlaylist(sender as Button))
@@ -438,19 +373,13 @@ namespace CynthMusic
                 await playlistManager.ConvertYouTubeListAsync(((dynamic)sender).DataContext.Item);
             }
         }
-
         private void ExportPlaylist_Click(object sender, RoutedEventArgs e)
         {
             dynamic context = (sender as Button).DataContext;
             playlistManager.ExportList(context.Item);
         }
-
-        private async void DelMusic_Click(object sender, RoutedEventArgs e)
-        {
-            if (!await playlistManager.DeleteMusicAsync(sender as Button))
-                Stop();
-        }
-
+        private async void DelMusic_Click(object sender, RoutedEventArgs e) =>
+            await playlistManager.DeleteMusicAsync(sender as Button);
         private void RenamePlaylist_Click(object sender, RoutedEventArgs e)
         {
             dynamic context = (sender as Button).DataContext;
@@ -487,27 +416,30 @@ namespace CynthMusic
             {
                 if (b.OriginalSource is TextBox)
                     return;
-                if (b.Key is Key.MediaPlayPause or Key.Space)
-                    PlayPrepare();
-                else if (b.Key is Key.MediaPreviousTrack or Key.Left)
+                if (b.Key is Key.Space)
+                    SetPlayState(playerService.TogglePlay());
+                else if (b.Key is Key.MediaPreviousTrack)
                     playerService.Previous();
-                else if (b.Key is Key.MediaNextTrack or Key.Right)
+                else if (b.Key is Key.MediaNextTrack)
                     playerService.Next();
                 else if (b.Key is Key.Up)
                     sldVolume.Value += 5;
+                else if (b.Key is Key.Left)
+                    sldPosition.Value -= 5;
+                else if (b.Key is Key.Right)
+                    sldPosition.Value += 5;
                 else if (Keyboard.Modifiers is ModifierKeys.Shift && b.Key is Key.Down)
                     SwitchVisibility();
                 else if (b.Key == Key.Down)
                     sldVolume.Value -= 5;
                 else if (b.Key is Key.MediaStop || (Keyboard.Modifiers is ModifierKeys.Shift && b.Key is Key.Delete))
-                    Stop();
+                    playerService.Stop();
                 else if (Keyboard.Modifiers is ModifierKeys.Shift && b.Key is Key.R)
                     Shuffle();
                 else if (b.Key is Key.R)
                     Infinite();
                 else if (b.Key is Key.M)
                     sldVolume.Value = sldVolume.Value == 0 ? volume : 0;
-
             };
             btnMaximize.Click += (a, b) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
             btnMinimize.Click += (a, b) => WindowState = WindowState.Minimized;
@@ -516,12 +448,12 @@ namespace CynthMusic
             btnPlay.Click += (a, b) =>
             {
                 if (Keyboard.Modifiers == ModifierKeys.Shift)
-                    Stop();
+                    playerService.Stop();
                 else
-                    PlayPrepare();
+                    SetPlayState(playerService.TogglePlay());
             };
-            btnStop.Click += (a, b) => Stop();
-            btnPlayContext.Click += (a, b) => PlayPrepare();
+            btnStop.Click += (a, b) => playerService.Stop();
+            btnPlayContext.Click += (a, b) => SetPlayState(playerService.TogglePlay());
             btnNext.Click += (a, b) => playerService.Next();
             btnNextContext.Click += (a, b) => playerService.Next();
             btnPrevious.Click += (a, b) => playerService.Previous();
@@ -626,7 +558,6 @@ namespace CynthMusic
                     return;
                 await playlistManager.ExchangeOrders(data.Index - 1, ((Orderable<IMusic>)targetItem.DataContext).Index - 1);
             };
-
             lvPlaying.MouseDoubleClick += async (a, b) =>
             {
                 if (lvPlaying.SelectedIndex == -1)
@@ -654,7 +585,6 @@ namespace CynthMusic
 
                 await playerService.PlayMusicList(list);
             };
-
             btnSelectLocation.Click += (a, b) =>
             {
                 var dialog = new System.Windows.Forms.FolderBrowserDialog();
@@ -663,16 +593,13 @@ namespace CynthMusic
                     return;
                 txtAddLocation.Text = dialog.SelectedPath.Replace("\\", @"\\");
             };
-
             inpPlaylistSearch.TextChanged += (a, b) =>
             {
                 string text = inpPlaylistSearch.Text;
                 var filter = playlistManager.Filter(text.ToLower());
                 lvPlaylist.ItemsSource = filter;
             };
-
             btnSettings.Click += (a, b) => new Settings().ShowDialog();
-
             btnImport.Click += async (a, b) =>
             {
                 bool state = await playlistManager.ImportList();

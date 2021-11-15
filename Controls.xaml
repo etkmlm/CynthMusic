@@ -141,6 +141,8 @@
                 <Setter Property="FontWeight" Value="Bold"/>
                 <Setter Property="BorderBrush" Value="#434B57"/>
                 <Setter Property="BorderThickness" Value="10"/>
+                <Setter Property="FontFamily" Value="Corbel"/>
+                <Setter Property="FontSize" Value="15"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="GridViewColumnHeader">
@@ -154,10 +156,12 @@
             </Style>
             <Style TargetType="ListViewItem">
                 <Setter Property="OverridesDefaultStyle" Value="True"/>
+                <Setter Property="FontFamily" Value="Calibri"/>
+                <Setter Property="FontSize" Value="13"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ListViewItem">
-                            <Border BorderBrush="Transparent" Background="{TemplateBinding Background}" Padding="5" BorderThickness="0" >
+                            <Border BorderBrush="Transparent" Background="{TemplateBinding Background}" Padding="7" BorderThickness="0" >
                                 <GridViewRowPresenter VerticalAlignment="Center" Width="Auto" HorizontalAlignment="Left" Content="{TemplateBinding Content}"/>
                             </Border>
                         </ControlTemplate>

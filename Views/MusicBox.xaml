@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CynthMusic.Views"
         mc:Ignorable="d"
-        Title="Müzik Seçimi" Height="350" Width="300" WindowStyle="None" WindowStartupLocation="CenterScreen">
+        Title="Müzik Seçimi" Height="350" Width="400" WindowStyle="None" WindowStartupLocation="CenterScreen">
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
@@ -19,7 +19,7 @@
         <Separator Margin="45,140,45,0" VerticalAlignment="Top"/>
         <Grid Margin="10,160,10,40" MinHeight="150">
             <Border Name="maskMenu" Background="#FF16191D" CornerRadius="10" />
-            <ListView Margin="0,0,0,0" x:Name="lvMusics" FontSize="9" Style="{StaticResource SuperListView}">
+            <ListView Margin="0,0,0,0" x:Name="lvMusics" Style="{StaticResource SuperListView}">
                 <ListView.OpacityMask>
                     <VisualBrush Visual="{Binding ElementName=maskMenu}"/>
                 </ListView.OpacityMask>
@@ -35,8 +35,8 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="İsim" Width="150" DisplayMemberBinding="{Binding Item.Item.Name}"/>
-                        <GridViewColumn Header="Sanatçı" Width="50" DisplayMemberBinding="{Binding Item.Item.Author}"/>
+                        <GridViewColumn Header="İsim" Width="220" DisplayMemberBinding="{Binding Item.Item.Name}"/>
+                        <GridViewColumn Header="Sanatçı" Width="110" DisplayMemberBinding="{Binding Item.Item.Author}"/>
                         <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.Item.SaveIdentity}"/>
                     </GridView>
                 </ListView.View>

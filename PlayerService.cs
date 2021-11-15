@@ -38,8 +38,8 @@ namespace CynthMusic
         private List<int> toDeleteList;
         private string playingListYT;
 
-        public PlayerService(ref ListView lvPlaying, ref MediaElement player, MusicService musicService, Action progressChanged, Action prepare, Action mediaFinish, Action<string> setState, Action<string> setIconTip) :
-            base(ref player, progressChanged, prepare, mediaFinish, setState, setIconTip)
+        public PlayerService(ref ListView lvPlaying, ref MediaElement player, MusicService musicService, Action<string> setIconTip) :
+            base(ref player, setIconTip)
         {
             this.musicService = musicService;
             this.lvPlaying = lvPlaying;
@@ -64,9 +64,13 @@ namespace CynthMusic
         {
             if (!list.Verify())
             {
-                list = await playlistManager.RepairAsync(list);
-                await playlistManager.UpdateMusicsAsync(list.ID, list.Musics);
-                await PlayNormalMusicList(list, play);
+                await App.Current.Dispatcher.InvokeAsync(async () =>
+                {
+                    var musics = list.Musics.Where(x => x != null);
+                    list.Musics = musics;
+                    await playlistManager.UpdateMusicsAsync(list.ID, list.Musics);
+                    await PlayNormalMusicList(list, play);
+                });
                 return;
             }
             foreach (var m in list.Musics)
@@ -80,13 +84,14 @@ namespace CynthMusic
             await Task.Run(async () =>
             {
                 isDeletingOpen = false;
-                await LoadYouTubeMusics();
+                await LoadYouTubeMusics(play);
                 isDeletingOpen = true;
-                lvPlaying.Dispatcher.Invoke(() =>
-                {
-                    for (int i = 0; i < toDeleteList.Count; i++)
-                        RemoveMusic(toDeleteList[i]);
-                });
+            }, GetToken());
+
+            await lvPlaying.Dispatcher.InvokeAsync(() =>
+            {
+                for (int i = 0; i < toDeleteList.Count; i++)
+                    RemoveMusic(toDeleteList[i]);
             });
         }
         private async Task PlayYouTubeMusicList(YouTubeMusicList list, CancellationToken token, bool play) =>
@@ -134,8 +139,8 @@ namespace CynthMusic
                 await PlayNormalMusicList((MusicList)list, play);
 
         }
-        public async Task PlayMusicWithLoad(Orderable<ColorableMusic> music, TimeSpan? position = null) =>
-            await lvPlaying.Dispatcher.InvokeAsync(async () =>
+        public async Task PlayMusicWithLoad(Orderable<ColorableMusic> music, TimeSpan? position = null, bool start = true) =>
+            await App.Current.Dispatcher.InvokeAsync(async () =>
             {
                 if (music.Item.Music is not YouTubeMusic)
                 {
@@ -148,7 +153,7 @@ namespace CynthMusic
                 item.Item.Music.Length = m.Value.Length;
                 srcPlaying.SetItem(music.Index - 1, item);
                 lvPlaying.Items.Refresh();
-                Play(item.Item.Music.SaveIdentity, position);
+                Play(music.Item.Music.SaveIdentity, position);
             });
         public async Task PlayLocation(Button btn)
         {
@@ -168,32 +173,36 @@ namespace CynthMusic
                 srcPlaying.Add(new ColorableMusic(x));
             if (srcPlaying[0].Item.Music.PlayURL != null)
                 PlayList();
-            await Task.Run(async () => await LoadYouTubeMusics());
+            await Task.Run(async () => await LoadYouTubeMusics(), GetToken());
         }
         #endregion
 
         #region Utils
-        protected async Task LoadYouTubeMusics()
+        protected async Task LoadYouTubeMusics(bool play = true)
         {
             foreach (var newItem in srcPlaying.Where(x => x.Item.Music.PlayURL == null).ToList())
             {
+                if (cancellation.IsCancellationRequested || srcPlaying.Count == 0)
+                    return;
                 string a = ((YouTubeMusic)newItem.Item.Music).YouTubeUri;
                 var get = await musicService.GetConvertedYouTubeMusicAsync(a);
                 newItem.Item.Music.Author = playlistManager.GetAlgCheck() ? MusicService.AuthorAlgorithm(get.Value.Name, playlistManager.GetAlgAuthors(), get.Value.Author) : get.Value.Author;
                 newItem.Item.Music.Length = get.Value.Length;
                 newItem.Item.Music.PlayURL = get.Value.PlayURL;
+                if (App.Current == null)
+                    return;
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
+                    if (newItem.Index > srcPlaying.Count)
+                        return;
                     srcPlaying.SetItem(newItem.Index - 1, newItem);
-                    if (newItem.Index == 1)
+                    if (newItem.Index == 1 && play)
                         PlayList();
                     lvPlaying.Items.Refresh();
                 });
             }
         }
         public async Task RefreshPlaying() => await lvPlaying.Dispatcher.InvokeAsync(() => lvPlaying.Items.Refresh());
-        public async Task RemoveMusicAsync(int index) =>
-            await lvPlaying.Dispatcher.InvokeAsync(() => RemoveMusic(index));
         public void RemoveMusic(int index)
         {
             if (isDeletingOpen)
@@ -231,6 +240,7 @@ namespace CynthMusic
                     string[] state = config.Get("LASTID").Split("||");
                     if (state.Length != 4)
                         return;
+
                     IMusicList list;
                     if (state[0].StartsWith("---"))
                     {
@@ -240,32 +250,41 @@ namespace CynthMusic
                     }
                     else
                         list = await playlistManager.GetAsync(int.Parse(state[0]), playlistManager.GetAlgCheck(), playlistManager.GetAlgAuthors());
+
                     if (list == null)
                         return;
-                    await lvPlaying.Dispatcher.InvokeAsync(async () => await PlayMusicList(list, false, !string.IsNullOrWhiteSpace(state[1]) ? state[1].Split(',').Select(x => int.Parse(x)) : null));
+                    await lvPlaying.Dispatcher.InvokeAsync(async () => 
+                        await PlayMusicList(list, false, !string.IsNullOrWhiteSpace(state[1]) ? state[1].Split(',').Select(x => int.Parse(x)) : null));
                     int count = list.Musics.Count();
                     while (srcPlaying.Count != count) ;
+
                     try
                     {
-                        await PlayMusicWithLoad(srcPlaying[int.Parse(state[2]) - 1], TimeSpan.ParseExact(state[3], @"hh\.mm\.ss", CultureInfo.CurrentCulture));
-                        while (!isPlaying) ;
+                        int number = int.Parse(state[2]);
+                        await PlayMusicWithLoad(srcPlaying[number <= 1 ? 0 : number - 1], TimeSpan.ParseExact(state[3], @"hh\.mm\.ss", CultureInfo.CurrentCulture), false);
                     }
                     catch (Exception e) when (e is ArgumentOutOfRangeException or InvalidOperationException)
                     {
 
                     }
+                    finally
+                    {
+                        while (!isPlaying) ;
+                    }
 
                     App.Current.Dispatcher.Invoke(() =>
                     {
+                        string[] vol = config.Get("VOL").Split(',');
+                        window.SetVolume(int.Parse(vol[1]), int.Parse(vol[0]));
+
                         if (config.Get("PLINTRAY").ToLower() == "true")
                             window.SwitchVisibility();
                         else
-                            window.PlayPrepare();
-                        string[] vol = config.Get("VOL").Split(',');
-                        window.SetVolume(int.Parse(vol[1]), int.Parse(vol[0]));
+                        {
+                            window.SetPlayState(false);
+                            TogglePlay(false);
+                        }
                     });
-
-                    
                 }
                 catch (Exception e)
                 {

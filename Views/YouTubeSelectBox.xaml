@@ -21,8 +21,8 @@
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="İsim" Width="200" DisplayMemberBinding="{Binding Name}"/>
-                        <GridViewColumn Header="Sanatçı" Width="50" DisplayMemberBinding="{Binding Author}"/>
-                        <GridViewColumn Width="75" DisplayMemberBinding="{Binding YouTubeUri}"/>
+                        <GridViewColumn Header="Sanatçı" Width="150" DisplayMemberBinding="{Binding Author}"/>
+                        <GridViewColumn Width="0" DisplayMemberBinding="{Binding YouTubeUri}"/>
                         <GridViewColumn Width="0" DisplayMemberBinding="{Binding SaveIdentity}"/>
                     </GridView>
                 </ListView.View>

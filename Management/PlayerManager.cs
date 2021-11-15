@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Timers;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace CynthMusic.Management
@@ -18,9 +19,9 @@ namespace CynthMusic.Management
     public class PlayerManager
     {
         private readonly MediaElement player;
-        private readonly Action PreparePlay;
         private readonly Action<string> setIconTip;
         private PlayerService service => MainWindow.playerService;
+        private MainWindow window = (MainWindow)App.Current.MainWindow;
         protected bool isPlaying = false;
         public bool isLoop = false;
         public bool isListLoop = false;
@@ -28,12 +29,12 @@ namespace CynthMusic.Management
 
         protected int[] playingListOrders;
         private IMusic playingMedia;
-        private Timer timerPosition;
+        private DispatcherTimer timerPosition;
 
         public bool IsPlayingList => PlayerService.PlayingListID != -1;
         public bool IsListAvailable => IsPlayingList && service.srcPlaying.Count != 0;
 
-        public PlayerManager(ref MediaElement player, Action progressChanged, Action prepare, Action mediaFinish, Action<string> setState, Action<string> setIconTip)
+        public PlayerManager(ref MediaElement player, Action<string> setIconTip)
         {
             this.player = player;
             this.setIconTip = setIconTip;
@@ -44,34 +45,19 @@ namespace CynthMusic.Management
                 else if (IsListAvailable)
                 {
                     if (!Next())
-                        mediaFinish.Invoke();
+                        StopGUI();
                 }
                 else
-                {
                     Stop();
-                    mediaFinish.Invoke();
-                }
-            };
-
-            PreparePlay = () =>
-            {
-                isPlaying = false;
-                timerPosition = new Timer();
-                timerPosition.Elapsed += (c, d) => progressChanged.Invoke();
-                timerPosition.Interval = 750;
-                timerPosition.Start();
-                prepare.Invoke();
-                setState(playingMedia.Name);
             };
         }
-        
+
         public void PlayList()
         {
             if (isPlaying)
                 Stop();
             ConvertPlay(service.srcPlaying[0]);
         }
-        
         public void PlayFirst()
         {
             if (isShuffled)
@@ -79,18 +65,22 @@ namespace CynthMusic.Management
             else
                 ConvertPlay(service.srcPlaying[0]);
         }
-        public bool TogglePlay()
+        public void TogglePlay(bool state)
         {
             if (player.Source == null || !player.Source.IsAbsoluteUri)
-                return false;
-            if (isPlaying)
-                player.Pause();
-            else
+                return;
+            if (state)
                 player.Play();
-            isPlaying = !isPlaying;
+            else
+                player.Pause();
+            isPlaying = state;
+        }
+        public bool TogglePlay()
+        {
+            TogglePlay(!isPlaying);
             return isPlaying;
         }
-        
+
         #region Player
         public async void Play(IMusic music, int index = -1, TimeSpan? position = null)
         {
@@ -102,6 +92,9 @@ namespace CynthMusic.Management
                     Stop();
                 return;
             }
+
+            //StopGUI();
+            window.sldPosition.Value = 0;
             player.Stop();
             player.Source = new Uri(music.PlayURL);
             setIconTip("Oynatılıyor: " + music.Name);
@@ -109,14 +102,54 @@ namespace CynthMusic.Management
             if (index != -1)
                 music.ID = index;
             playingMedia = music;
-            PreparePlay();
+
+            timerPosition = new DispatcherTimer();
+            timerPosition.Tick += PositionTimer_Tick;
+            timerPosition.Interval = TimeSpan.FromMilliseconds(750);
+            timerPosition.Start();
+            window.SetPlayState(true);
+            isPlaying = true;
+            window.lblState.Content = playingMedia.Name;
+
             if (position.HasValue)
                 player.Position = position.Value;
+        }
+        private void PositionTimer_Tick(object sender, EventArgs e)
+        {
+            if (player.BufferingProgress is not 0 and not 1)
+            {
+                window.sldPosition.Foreground = new SolidColorBrush(Color.FromRgb(200, 170, 20));
+                window.sldPosition.Maximum = 100;
+                var progress = player.BufferingProgress * 100;
+                window.sldPosition.Value = progress;
+                window.lblPosition.Content = progress + " / 100";
+            }
+            else
+            {
+                window.sldPosition.Foreground = new SolidColorBrush(Color.FromRgb(13, 127, 100));
+                if (!player.NaturalDuration.HasTimeSpan)
+                {
+                    window.sldPosition.Maximum = 0;
+                    return;
+                }
+                window.sldPosition.Maximum = player.NaturalDuration.TimeSpan.TotalSeconds;
+                window.sldPosition.Value = player.Position.TotalSeconds;
+                window.lblPosition.Content = player.Position.ToString(@"mm\.ss") + " / " + player.NaturalDuration.TimeSpan.ToString(@"mm\.ss");
+            }
         }
         public void ConvertPlay(Orderable<ColorableMusic> music, TimeSpan? position = null) =>
             Play(music.Item.Music, music.Index, position);
         public void Play(string identity, TimeSpan? position = null) =>
             ConvertPlay(service.srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == identity), position);
+        public void StopGUI()
+        {
+            window.btnPlay.Content = "ᐅ";
+            window.btnPlayContext.Header = "Oynat";
+            window.sldPosition.Value = 0;
+            window.lblState.Content = "Boş";
+            window.lblPosition.Content = "0.00 / 0.00";
+            window.btnShuffle.Foreground = new SolidColorBrush(Colors.White);
+        }
         public void Stop()
         {
             player.Stop();
@@ -127,9 +160,10 @@ namespace CynthMusic.Management
             playingListOrders = null;
             isShuffled = false;
             isPlaying = false;
-            (System.Windows.Application.Current.MainWindow as MainWindow).CancelToken();
+            service.CancelToken();
             service.srcPlaying.Clear();
             PlayerService.PlayingListID = -1;
+            StopGUI();
         }
         public bool Next()
         {

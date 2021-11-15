@@ -23,19 +23,13 @@
             </tb:TaskbarIcon.ContextMenu>
         </tb:TaskbarIcon>
         <MediaElement Name="media" Visibility="Hidden" LoadedBehavior="Manual" Volume="0.5"/>
-        <Grid x:Name="panelTop" Margin="0,0,0,0" Height="80" VerticalAlignment="Top" Background="#FF2A2F2F">
-            <Image Margin="10,-5,0,0" Width="60" Height="60" Source="/cynth.png" HorizontalAlignment="Left"/>
-            <Label Visibility="Hidden" Content="Cynth" Foreground="White" FontSize="40" Margin="10,0,0,0"/>
-            <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="#FF05191D" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
-            <Button x:Name="btnMaximize" Content="▢" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="#FF16191D" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,40,0"/>
-            <Button x:Name="btnMinimize" Content="_" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="#FF16191D" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,70,0"/>
-            <Button x:Name="btnInfo" Content="i" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Background="#FF16191D" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,100,0"/>
+        <Grid Margin="0,0,0,0" Height="20" VerticalAlignment="Top">
+            <Button x:Name="btnExit" Content="X" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="20" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0"/>
+            <Button x:Name="btnMaximize" Content="▢" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,27,0"/>
+            <Button x:Name="btnMinimize" Content="_" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,54,0"/>
+            <Button x:Name="btnInfo" Content="." FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,3,81,0"/>
         </Grid>
-        <Grid Height="70" Margin="10,80,150,0"  VerticalAlignment="Top" HorizontalAlignment="Stretch">
-            <Label Foreground="White" Margin="10,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="lblState" Content="Boş" FontSize="15"/>
-            <Slider IsMoveToPointEnabled="True" Delay="300" x:Name="sldPosition" Margin="10,0,0,5" Foreground="#FF0D7F64"  Value="0" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Style="{StaticResource SuperSlider}" />
-        </Grid>
-        <Grid Width="100" Margin="10,150,0,10" HorizontalAlignment="Left">
+        <Grid Width="100" Margin="10,30,0,70" HorizontalAlignment="Left">
             <Border Name="maskMenu" Background="#FF2C2929" CornerRadius="5" />
             <Grid x:Name="panelMenu" Background="#FF16191D">
                 <Grid.OpacityMask>
@@ -48,7 +42,7 @@
                 <Button x:Name="btnSettings" Style="{StaticResource SuperButton}" Content="Ayarlar" Background="Transparent" Height="40" FontSize="15" Foreground="White" Margin="0,0,0,10" VerticalAlignment="Bottom"/>
             </Grid>
         </Grid>
-        <Grid Margin="150,150,150,10">
+        <Grid Margin="130,30,120,70">
             <Grid x:Name="panelListing">
                 <Border Name="maskContainer" Background="#FF2C2929" CornerRadius="5"/>
                 <ListView Visibility="Visible" x:Name="lvPlaying" Style="{StaticResource SuperListView}">
@@ -57,14 +51,14 @@
                     </ListView.OpacityMask>
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="#" Width="35" DisplayMemberBinding="{Binding Index}"/>
+                            <GridViewColumn Header="" Width="35" DisplayMemberBinding="{Binding Index}"/>
                             <GridViewColumn Header="İsim" Width="250" DisplayMemberBinding="{Binding Item.Music.Name}"/>
                             <GridViewColumn Header="Sanatçı" Width="100" DisplayMemberBinding="{Binding Item.Music.Author}"/>
                             <GridViewColumn Header="Uzunluk" Width="75" DisplayMemberBinding="{Binding Item.Music.LengthString}"/>
                             <GridViewColumn Width="50">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Style="{StaticResource SuperButton}" Margin="0,-6,0,0" Background="Transparent" Foreground="{Binding Item.Foreground}" FontSize="20" Content="♥" Height="20" Width="20" Loaded="LikeButton_Loaded" Click="LikeButton_Click" MouseEnter="LikeButton_Enter" MouseLeave="LikeButton_Leave"/>
+                                        <Button Style="{StaticResource SuperButton}" Margin="0,-6,0,0" Background="Transparent" Foreground="{Binding Item.Foreground}" FontSize="12" Content="♥" Height="25" Width="30" Loaded="LikeButton_Loaded" Click="LikeButton_Click" MouseEnter="LikeButton_Enter" MouseLeave="LikeButton_Leave"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -186,7 +180,7 @@
             </Grid>
             <TextBox Visibility="Visible" BorderThickness="0" x:Name="inpPlaylistSearch" Background="#FF16191D" Foreground="White" Style="{StaticResource SuperTextBox}" MinWidth="200" MinHeight="30" Margin="0,0,30,10" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
         </Grid>
-        <Grid HorizontalAlignment="Right" Margin="0,90,10,10" Width="90">
+        <Grid HorizontalAlignment="Right" Margin="0,30,10,70" Width="90">
             <Border Name="maskPlayer" BorderThickness="0" Background="#FF2C2929" CornerRadius="10"/>
             <Grid x:Name="panelPlayer">
                 <Grid.Background>
@@ -206,6 +200,12 @@
                 <Button Style="{StaticResource SuperButton}" Name="btnShuffle" Width="25" FontSize="15" Height="30" Margin="0,0,10,10" Background="Transparent" Foreground="White" Content="🎲" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
             </Grid>
         </Grid>
+        <Grid x:Name="panelBottom" Height="60" Margin="0,0,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" >
+            <Label Foreground="AliceBlue" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="lblState" Content="Boş" FontSize="15"/>
+            <Label Foreground="White" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" x:Name="lblPosition" Content="0.00 / 0.00" FontSize="15"/>
+            <Slider IsMoveToPointEnabled="True" Delay="300" x:Name="sldPosition" Margin="0,0,0,0" Foreground="#FF0D7F64" VerticalContentAlignment="Bottom" Value="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Style="{StaticResource SuperSlider}" />
+        </Grid>
+
     </Grid>
 
 </Window>
