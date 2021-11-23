@@ -416,11 +416,15 @@ namespace CynthMusic
             btnExit.Click += (a, b) =>
             {
                 interop.Stop();
+                playerService.SaveState();
+                icon.Dispose();
                 Environment.Exit(0);
             };
             btnExitContext.Click += (a, b) =>
             {
                 interop.Stop();
+                playerService.SaveState();
+                icon.Dispose();
                 Environment.Exit(0);
             };
             PreviewKeyDown += (a, b) =>
