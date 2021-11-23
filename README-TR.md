@@ -12,6 +12,12 @@ Programın düzgün çalışması için [KLite Codec Pack](https://codecguide.co
 
 coreliumdev@gmail.com
 
+## Ekler
+
+**Tanıtım Videosu:** https://www.youtube.com/watch?v=b866-7Y_0KQ
+
+[English README](/README.md)
+
 ## Resimler
 
 ![](https://i.ibb.co/t4m0qXH/1.png)
