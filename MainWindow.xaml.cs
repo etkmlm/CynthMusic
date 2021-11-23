@@ -16,6 +16,9 @@ using System.Windows.Data;
 using System.Linq;
 using System.Windows.Media.Imaging;
 using NAudio.CoreAudioApi;
+using CynthCore.Utils;
+using System.Media;
+using System.Reflection;
 
 namespace CynthMusic
 {
@@ -56,6 +59,7 @@ namespace CynthMusic
         private string switchedLocationIdentity;
         private int listIdToRename = -1;
         public double volume = 50;
+        private float systemVolume = 0;
 
         private readonly MMDeviceEnumerator enumerator;
         private readonly MMDevice device;
@@ -81,8 +85,11 @@ namespace CynthMusic
             device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
             device.AudioEndpointVolume.OnVolumeNotification += async (a) => await Dispatcher.InvokeAsync(() =>
             {
-                if (!GetBool("STM"))
+                if (!GetBool("STM") || systemVolume != a.MasterVolume)
+                {
+                    systemVolume = a.MasterVolume;
                     return;
+                }
                 SetPlayState(!a.Muted);
                 playerService.TogglePlay(!a.Muted);
             });
@@ -137,7 +144,11 @@ namespace CynthMusic
             {
                 var isUp = await update.CheckUpdate(GetVersion());
                 if (isUp.Item1)
-                    new AlertBox("Uyarı", $"Yeni bir sürüm (v{isUp.Item2.ToString().Replace(',', '.')}) mevcut!").ShowDialog();
+                {
+                    var result = MessageBox.Show("Uyarı", $"Yeni bir sürüm (v{isUp.Item2.ToString().Replace(',', '.')}) mevcut!\nHemen güncellemek ister misiniz?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    if (result == MessageBoxResult.Yes)
+                        new DownloadBox(isUp.Item3, System.IO.Path.Combine(Environment.CurrentDirectory, "New.zip")).ShowDialog();
+                }
             });
         public static string GetVersion()
         {
@@ -405,12 +416,12 @@ namespace CynthMusic
             btnExit.Click += (a, b) =>
             {
                 interop.Stop();
-                Application.Current.Shutdown();
+                Environment.Exit(0);
             };
             btnExitContext.Click += (a, b) =>
             {
                 interop.Stop();
-                Application.Current.Shutdown();
+                Environment.Exit(0);
             };
             PreviewKeyDown += (a, b) =>
             {

@@ -1,4 +1,4 @@
-﻿<Window x:Class="CynthMusic.Views.AlertBox"
+﻿<Window x:Class="CynthMusic.Views.DownloadBox"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -10,8 +10,8 @@
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
     <Grid>
-        <Button x:Name="btnExit" Style="{StaticResource SuperButton}" Foreground="White" Content="X" Width="15" FontSize="8" Background="Transparent" Height="15" Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right"/>
-        <Label FontWeight="SemiBold" x:Name="lblTitle" Width="200" Height="40" Content="Başlık" Foreground="Aquamarine" Margin="10,15,0,0" FontSize="18" VerticalAlignment="Top" HorizontalAlignment="Left"/>
-        <TextBlock Text="gerjknger" TextAlignment="Left" TextWrapping="Wrap" x:Name="txtMessage" Foreground="White" FontSize="15" Width="Auto" Margin="15,60,15,10" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <Button x:Name="btnExit" Style="{StaticResource SuperButton}" Foreground="White" Content="X" Width="15" FontSize="8" Height="15" Background="Transparent" Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right"/>
+        <ProgressBar x:Name="progress" Maximum="100" Value="0" Height="20" Margin="10,0,10,0" VerticalAlignment="Center"/>
+        <Label Content="%0" Foreground="White" HorizontalContentAlignment="Right" Name="lblState" FontSize="13" Margin="0,50,10,0" VerticalAlignment="Center"/>
     </Grid>
 </Window>

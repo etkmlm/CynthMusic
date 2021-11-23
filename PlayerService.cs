@@ -17,6 +17,7 @@ using System.Windows.Data;
 using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Media;
+using CynthMusic.Views;
 
 namespace CynthMusic
 {
@@ -34,7 +35,6 @@ namespace CynthMusic
         public OrderableCollection<ColorableMusic> srcPlaying;
         public static int PlayingListID = -1;
 
-        private bool isDeletingOpen = true;
         private List<int> toDeleteList;
         private string playingListYT;
 
@@ -78,47 +78,21 @@ namespace CynthMusic
                 m.IsFavourite = await musicService.IsFavourite(m.SaveIdentity);
                 srcPlaying.Add(new ColorableMusic(m));
             }
-            if (!string.IsNullOrEmpty(list.Musics.ElementAt(0).PlayURL) && play)
-                PlayList();
-
-            await Task.Run(async () =>
-            {
-                isDeletingOpen = false;
-                await LoadYouTubeMusics(play);
-                isDeletingOpen = true;
-            }, GetToken());
-
-            await lvPlaying.Dispatcher.InvokeAsync(() =>
-            {
-                for (int i = 0; i < toDeleteList.Count; i++)
-                    RemoveMusic(toDeleteList[i]);
-            });
+            if (srcPlaying.Count != 0 && play)
+                await PlayMusicWithLoad(srcPlaying.FirstOrDefault());
         }
         private async Task PlayYouTubeMusicList(YouTubeMusicList list, CancellationToken token, bool play) =>
-            await Task.Run(async () =>
+            await lvPlaying.Dispatcher.InvokeAsync(async () =>
             {
                 playingListYT = list.YouTubeID;
-                lvPlaying.Dispatcher.Invoke(() =>
-                {
-                    foreach (var x in list.Musics)
-                        srcPlaying.Add(new ColorableMusic(x));
-                });
-                await foreach (var x in list.MusicsAsync)
+                foreach (var x in list.Musics)
                 {
                     if (token.IsCancellationRequested)
-                        break;
-                    bool isFavourite = await musicService.IsFavourite(x.SaveIdentity);
-                    await lvPlaying.Dispatcher.InvokeAsync(() =>
-                    {
-                        var item = srcPlaying[x.ID];
-                        item.Item.Music.PlayURL = x.PlayURL;
-                        item.Item.Music.Length = x.Length;
-                        srcPlaying.SetItem(x.ID, item);
-                        lvPlaying.Items.Refresh();
-                        if (x.ID == 1 && play)
-                            PlayFirst();
-                    });
-                    await Task.Delay(100);
+                        return;
+                    x.IsFavourite = await musicService.IsFavourite(x.SaveIdentity);
+                    srcPlaying.Add(new ColorableMusic(x));
+                    if (x.ID == 1 && play)
+                        await PlayMusicWithLoad(srcPlaying.FirstOrDefault());
                 }
             });
         public async Task PlayMusicList(IMusicList list, bool play = true, IEnumerable<int> shuffle = null)
@@ -148,6 +122,12 @@ namespace CynthMusic
                     return;
                 }
                 var m = await musicService.GetConvertedYouTubeMusicAsync(((YouTubeMusic)music.Item.Music).YouTubeUri);
+                if (m == null)
+                {
+                    string msg = ExceptionManager.SolveHttp(ExceptionManager.GetExceptions("getMusicWithStream").LastOrDefault());
+                    new AlertBox("Hata", msg).ShowDialog();
+                    return;
+                }
                 var item = srcPlaying[music.Index - 1];
                 item.Item.Music.PlayURL = m.Value.PlayURL;
                 item.Item.Music.Length = m.Value.Length;
@@ -171,48 +151,17 @@ namespace CynthMusic
             srcPlaying.Clear();
             foreach (var x in addon.GetAllFavourites())
                 srcPlaying.Add(new ColorableMusic(x));
-            if (srcPlaying[0].Item.Music.PlayURL != null)
-                PlayList();
-            await Task.Run(async () => await LoadYouTubeMusics(), GetToken());
+            await PlayMusicWithLoad(srcPlaying.FirstOrDefault());
         }
         #endregion
 
         #region Utils
-        protected async Task LoadYouTubeMusics(bool play = true)
-        {
-            foreach (var newItem in srcPlaying.Where(x => x.Item.Music.PlayURL == null).ToList())
-            {
-                if (cancellation.IsCancellationRequested || srcPlaying.Count == 0)
-                    return;
-                string a = ((YouTubeMusic)newItem.Item.Music).YouTubeUri;
-                var get = await musicService.GetConvertedYouTubeMusicAsync(a);
-                newItem.Item.Music.Author = playlistManager.GetAlgCheck() ? MusicService.AuthorAlgorithm(get.Value.Name, playlistManager.GetAlgAuthors(), get.Value.Author) : get.Value.Author;
-                newItem.Item.Music.Length = get.Value.Length;
-                newItem.Item.Music.PlayURL = get.Value.PlayURL;
-                if (App.Current == null)
-                    return;
-                await App.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    if (newItem.Index > srcPlaying.Count)
-                        return;
-                    srcPlaying.SetItem(newItem.Index - 1, newItem);
-                    if (newItem.Index == 1 && play)
-                        PlayList();
-                    lvPlaying.Items.Refresh();
-                });
-            }
-        }
         public async Task RefreshPlaying() => await lvPlaying.Dispatcher.InvokeAsync(() => lvPlaying.Items.Refresh());
         public void RemoveMusic(int index)
         {
-            if (isDeletingOpen)
-            {
-                srcPlaying.DeleteItem(index);
-                if (GetPlayingID() == index + 1)
-                    ConvertPlay(srcPlaying[index]);
-            }
-            else
-                toDeleteList.Add(index);
+            srcPlaying.DeleteItem(index);
+            if (GetPlayingID() == index + 1)
+                ConvertPlay(srcPlaying[index]);
         }
         public void SaveState(bool first = true)
         {

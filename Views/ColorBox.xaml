@@ -10,7 +10,7 @@
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
     <Grid Background="#FF2C2929">
-        <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="15" Height="15" FontSize="8" Background="Red" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
+        <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="15" Height="15" FontSize="8" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
         <TextBox TextChanged="TextChanged" MaxLength="3" x:Name="txtRED" Background="#FF16191D" BorderThickness="0" Height="30" Width="40" Margin="10,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="Red" Style="{StaticResource SuperTextBox}"/>
         <TextBox TextChanged="TextChanged" MaxLength="3" x:Name="txtGREEN" Background="#FF16191D" BorderThickness="0" Height="30" Width="40" Margin="0,0,0,0" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Green" Style="{StaticResource SuperTextBox}"/>
         <TextBox TextChanged="TextChanged" MaxLength="3" x:Name="txtBLUE" Background="#FF16191D" BorderThickness="0" Height="30" Width="40" Margin="0,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Right" Foreground="Aqua" Style="{StaticResource SuperTextBox}"/>

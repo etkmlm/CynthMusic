@@ -10,7 +10,7 @@
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
     <Grid Background="#FF2C2929">
-        <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="15" Height="15" FontSize="8" Background="Red" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
+        <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="15" Height="15" FontSize="8" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
         <Label x:Name="lblblb" Content="Ayarlar" FontSize="30" Foreground="White" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         <StackPanel Margin="0,70,0,0" Orientation="Vertical">
             <StackPanel Orientation="Horizontal">

@@ -10,7 +10,7 @@
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
     <Grid Background="#FF2C2929">
-        <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="15" Height="15" FontSize="8" Background="Red" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
+        <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="15" Height="15" FontSize="8" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
         <Label Content="Liste Oluştur" Foreground="White" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="20"/>
         <Grid Margin="20,75,20,40" Height="50" VerticalAlignment="Top">
             <TextBox x:Name="txtURL" Background="#FF16191D" BorderThickness="0" Height="30" MinWidth="220" Foreground="White" Style="{StaticResource SuperTextBox}"/>

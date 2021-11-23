@@ -5,6 +5,7 @@
 
 using CynthCore;
 using CynthCore.Entities;
+using CynthMusic.Views;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -119,6 +120,12 @@ namespace CynthMusic.Management
                         {
                             int index = player.srcPlaying.LastOrDefault().Index;
                             var music = await musicService.GetConvertedYouTubeMusicAsync(((YouTubeMusic)x).YouTubeUri);
+                            if (music == null)
+                            {
+                                string msg = ExceptionManager.SolveHttp(ExceptionManager.GetExceptions("getMusicWithStream").LastOrDefault());
+                                new AlertBox("Hata", msg).ShowDialog();
+                                return;
+                            }
                             player.srcPlaying[index - 1].Item.Music.PlayURL = music.Value.PlayURL;
                             player.srcPlaying[index - 1].Item.Music.Length = music.Value.Length;
                             lvPlaying.Items.Refresh();
