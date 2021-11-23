@@ -13,6 +13,8 @@ You should download [KLite Codec Pack](https://codecguide.com/download_kl.htm) t
 
 coreliumdev@gmail.com
 
+[Türkçe README](/README-TR.md)
+
 ## Images
 
 ![](https://i.ibb.co/t4m0qXH/1.png)
