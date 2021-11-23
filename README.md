@@ -16,7 +16,7 @@ coreliumdev@gmail.com
 
 ## Additions
 
-**Presentation Video:** https://www.youtube.com/watch?v=b866-7Y_0KQ
+**Presentation Video:** https://www.youtube.com/watch?v=zKRcEH1vbJA
 
 [Türkçe README](/README-TR.md)
 
