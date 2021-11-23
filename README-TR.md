@@ -14,7 +14,7 @@ coreliumdev@gmail.com
 
 ## Ekler
 
-**Tanıtım Videosu:** https://www.youtube.com/watch?v=b866-7Y_0KQ
+**Tanıtım Videosu:** https://www.youtube.com/watch?v=zKRcEH1vbJA
 
 [English README](/README.md)
 
