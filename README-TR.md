@@ -14,6 +14,6 @@ coreliumdev@gmail.com
 
 ## Resimler
 
-![](https://i.ibb.co/GnvpHb8/1.png)
-![](https://i.ibb.co/cDXdpt2/2.png)
-![](https://i.ibb.co/rQyrrRz/3.png)
+![](https://i.ibb.co/t4m0qXH/1.png)
+![](https://i.ibb.co/PMWysVQ/2.png)
+![](https://i.ibb.co/d7Rp4Zj/3.png)
