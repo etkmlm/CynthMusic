@@ -23,8 +23,7 @@
             </StackPanel>
             <Rectangle Height="10"/>
             <DockPanel>
-                <Rectangle x:Name="rctBTOP" Width="100" Height="100" />
-                <Rectangle x:Name="rctBGEN" Width="100" Height="100" />
+                <Rectangle x:Name="rctBG" Width="100" Height="100" />
                 <Rectangle x:Name="imgBack" Width="100" Height="100" HorizontalAlignment="Right" />
             </DockPanel>
             <Rectangle Height="15"/>

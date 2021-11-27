@@ -93,11 +93,10 @@ namespace CynthMusic.Management
                 return;
             }
 
-            //StopGUI();
             window.sldPosition.Value = 0;
             player.Stop();
             player.Source = new Uri(music.PlayURL);
-            setIconTip("Oynatılıyor: " + music.Name);
+            setIconTip(music.Name);
             player.Play();
             if (index != -1)
                 music.ID = index;
@@ -143,11 +142,11 @@ namespace CynthMusic.Management
             ConvertPlay(service.srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == identity), position);
         public void StopGUI()
         {
-            window.btnPlay.Content = "ᐅ";
-            window.btnPlayContext.Header = "Oynat";
+            window.SetPlayState(false);
             window.sldPosition.Value = 0;
             window.lblState.Content = "Boş";
             window.lblPosition.Content = "0.00 / 0.00";
+            setIconTip("Boş");
             window.btnShuffle.Foreground = new SolidColorBrush(Colors.White);
         }
         public void Stop()

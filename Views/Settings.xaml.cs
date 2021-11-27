@@ -27,7 +27,6 @@ namespace CynthMusic.Views
     {
         private ConfigService service => MainWindow.configService;
         private MainWindow window = (MainWindow)App.Current.MainWindow;
-        public static Color topColor;
         public static Color genColor;
         private readonly Color defBack = Color.FromRgb(41, 41, 41);
         private readonly OrderableCollection<Selectable<string>> srcProperties;
@@ -44,20 +43,11 @@ namespace CynthMusic.Views
             lvProperties.ItemsSource = srcProperties;
             properties = new List<string>();
 
-            rctBGEN.PreviewMouseLeftButtonDown += (a, b) =>
+            rctBG.PreviewMouseLeftButtonDown += (a, b) =>
             {
-                new ColorBox(false, genColor).ShowDialog();
-                rctBGEN.Fill = new SolidColorBrush(genColor);
+                new ColorBox(genColor).ShowDialog();
+                rctBG.Fill = new SolidColorBrush(genColor);
                 service.Set("BGENERAL", $"{genColor.R},{genColor.G},{genColor.B}");
-                service.Set("BACKGROUND", null);
-                imgBack.Fill = new SolidColorBrush(defBack);
-                window.RefreshTheme();
-            };
-            rctBTOP.PreviewMouseLeftButtonDown += (a, b) =>
-            {
-                new ColorBox(true, topColor).ShowDialog();
-                rctBTOP.Fill = new SolidColorBrush(topColor);
-                service.Set("BTOP", $"{topColor.R},{topColor.G},{topColor.B}");
                 service.Set("BACKGROUND", null);
                 imgBack.Fill = new SolidColorBrush(defBack);
                 window.RefreshTheme();
@@ -65,15 +55,13 @@ namespace CynthMusic.Views
 
             chkBack.Checked += (a, b) =>
             {
-                rctBGEN.IsEnabled = false;
-                rctBTOP.IsEnabled = false;
+                rctBG.IsEnabled = false;
                 imgBack.IsEnabled = true;
             };
 
             chkSpecial.Checked += (a, b) =>
             {
-                rctBGEN.IsEnabled = true;
-                rctBTOP.IsEnabled = true;
+                rctBG.IsEnabled = true;
                 imgBack.IsEnabled = false;
             };
 
@@ -130,10 +118,8 @@ namespace CynthMusic.Views
                 imgBack.Fill = new ImageBrush(new BitmapImage(new Uri(back)));
             else
                 imgBack.Fill = new SolidColorBrush(defBack);
-            topColor = window.GetColor("BTOP").Value;
             genColor = window.GetColor("BGENERAL").Value;
-            rctBTOP.Fill = new SolidColorBrush(topColor);
-            rctBGEN.Fill = new SolidColorBrush(genColor);
+            rctBG.Fill = new SolidColorBrush(genColor);
             sldOpacity.Value = int.Parse(service.Get("BGOPACITY"));
             string id = service.Get("PLAYERTHEME");
             chkBlue.IsChecked = id == "1";

@@ -113,7 +113,7 @@ namespace CynthMusic
                 await PlayNormalMusicList((MusicList)list, play);
 
         }
-        public async Task PlayMusicWithLoad(Orderable<ColorableMusic> music, TimeSpan? position = null, bool start = true) =>
+        public async Task PlayMusicWithLoad(Orderable<ColorableMusic> music, TimeSpan? position = null) =>
             await App.Current.Dispatcher.InvokeAsync(async () =>
             {
                 if (music.Item.Music is not YouTubeMusic)
@@ -129,6 +129,7 @@ namespace CynthMusic
                     return;
                 }
                 var item = srcPlaying[music.Index - 1];
+                item.Item.Music.Author = m.Value.Author;
                 item.Item.Music.PlayURL = m.Value.PlayURL;
                 item.Item.Music.Length = m.Value.Length;
                 srcPlaying.SetItem(music.Index - 1, item);
@@ -210,7 +211,7 @@ namespace CynthMusic
                     try
                     {
                         int number = int.Parse(state[2]);
-                        await PlayMusicWithLoad(srcPlaying[number <= 1 ? 0 : number - 1], TimeSpan.ParseExact(state[3], @"hh\.mm\.ss", CultureInfo.CurrentCulture), false);
+                        await PlayMusicWithLoad(srcPlaying[number <= 1 ? 0 : number - 1], TimeSpan.ParseExact(state[3], @"hh\.mm\.ss", CultureInfo.CurrentCulture));
                     }
                     catch (Exception e) when (e is ArgumentOutOfRangeException or InvalidOperationException)
                     {

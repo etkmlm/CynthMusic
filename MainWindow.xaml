@@ -11,16 +11,24 @@
     </WindowChrome.WindowChrome>
     <Grid x:Name="panelMain" Background="#ff2c2929">
         <tb:TaskbarIcon x:Name="icon" IconSource="/favicon.ico">
-            <tb:TaskbarIcon.ContextMenu>
-                <ContextMenu x:Name="ctxNotify" Style="{StaticResource SuperContext}">
-                    <MenuItem x:Name="btnSHWindow" Header="Gizle"/>
-                    <MenuItem x:Name="btnPlayContext" Header="Oynat"/>
-                    <MenuItem x:Name="btnPreviousContext" Header="Önceki"/>
-                    <MenuItem x:Name="btnNextContext" Header="Sonraki"/>
-                    <MenuItem x:Name="btnStop" Header="Durdur"/>
-                    <MenuItem x:Name="btnExitContext" Header="Çıkış"/>
-                </ContextMenu>
-            </tb:TaskbarIcon.ContextMenu>
+            <tb:TaskbarIcon.TrayPopup>
+                <Border CornerRadius="5">
+                    <Border.Background>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#434343"/>
+                            <GradientStop Color="#353535" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Grid MinWidth="300" Height="200">
+                        <Label x:Name="lblStateContext" Foreground="White" Content="Boş" FontSize="20" Margin="10,10,10,10" VerticalAlignment="Top"/>
+                        <Button VerticalContentAlignment="Center" FontSize="15" Foreground="White" Style="{StaticResource PlayerButton}" Width="40" Height="40" Margin="50,0,0,66" VerticalAlignment="Bottom" HorizontalAlignment="Left" x:Name="btnPreviousContext" Content="ᐊ"/>
+                        <Button VerticalContentAlignment="Center" FontSize="25" Foreground="White" Style="{StaticResource PlayerButton}" Width="50" Height="50" Margin="0,0,0,60" VerticalAlignment="Bottom" HorizontalAlignment="Center" x:Name="btnPlayContext" Content="ᐅ"/>
+                        <Button VerticalContentAlignment="Center" FontSize="15" Foreground="White" Style="{StaticResource PlayerButton}" Width="40" Height="40" Margin="0,0,50,66" VerticalAlignment="Bottom" HorizontalAlignment="Right" x:Name="btnNextContext" Content="ᐅ"/>
+                        <Button VerticalContentAlignment="Center" FontSize="13" Background="Transparent" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" x:Name="btnExitContext" Content="X"/>
+                        <Button VerticalContentAlignment="Center" FontSize="13" Background="Transparent" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Margin="0,0,35,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" x:Name="btnSHWindow" Content="👁"/>
+                    </Grid>
+                </Border>
+            </tb:TaskbarIcon.TrayPopup>
         </tb:TaskbarIcon>
         <MediaElement Name="media" Visibility="Hidden" LoadedBehavior="Manual" Volume="0.5"/>
         <Grid Margin="0,0,0,0" Height="20" VerticalAlignment="Top">
@@ -35,11 +43,11 @@
                 <Grid.OpacityMask>
                     <VisualBrush Visual="{Binding ElementName=maskMenu}"/>
                 </Grid.OpacityMask>
-                <Button x:Name="btnListNow" Style="{StaticResource SuperButton}" Content="Şu Anda" Background="Transparent" Height="50" FontSize="15" Foreground="White" Margin="0,0,0,0" VerticalAlignment="Top"/>
-                <Button x:Name="btnListLists" Style="{StaticResource SuperButton}" Content="Listelerim" Background="Transparent" Height="40" FontSize="15" Foreground="White" Margin="0,60,0,0" VerticalAlignment="Top"/>
-                <Button x:Name="btnListFavourites" Style="{StaticResource SuperButton}" Content="Favorilerim" Background="Transparent" Height="40" FontSize="15" Foreground="White" Margin="0,110,0,0" VerticalAlignment="Top"/>
-                <Button x:Name="btnExplore" Style="{StaticResource SuperButton}" Content="Keşfet" Background="Transparent" Height="40" FontSize="15" Foreground="White" Margin="0,160,0,0" VerticalAlignment="Top"/>
-                <Button x:Name="btnSettings" Style="{StaticResource SuperButton}" Content="Ayarlar" Background="Transparent" Height="40" FontSize="15" Foreground="White" Margin="0,0,0,10" VerticalAlignment="Bottom"/>
+                <Button FontFamily="Montserrat" x:Name="btnListNow" Style="{StaticResource SuperButton}" Content="Şu Anda" Background="Transparent" Height="50" FontSize="13" Foreground="White" Margin="0,0,0,0" VerticalAlignment="Top"/>
+                <Button FontFamily="Montserrat" x:Name="btnListLists" Style="{StaticResource SuperButton}" Content="Listelerim" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="0,60,0,0" VerticalAlignment="Top"/>
+                <Button FontFamily="Montserrat" x:Name="btnListFavourites" Style="{StaticResource SuperButton}" Content="Favorilerim" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="0,110,0,0" VerticalAlignment="Top"/>
+                <Button FontFamily="Montserrat" x:Name="btnExplore" Style="{StaticResource SuperButton}" Content="Keşfet" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="0,160,0,0" VerticalAlignment="Top"/>
+                <Button FontFamily="Montserrat" x:Name="btnSettings" Style="{StaticResource SuperButton}" Content="Ayarlar" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="0,0,0,10" VerticalAlignment="Bottom"/>
             </Grid>
         </Grid>
         <Grid Margin="130,30,120,70">
@@ -127,7 +135,7 @@
                             <GridViewColumn Width="50">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Style="{StaticResource SuperButton}" Margin="0,0,0,0" Background="Transparent" Foreground="White" FontSize="12" Content="✖" Height="20" Width="20" MouseEnter="DelFav_Enter" MouseLeave="DelFav_Leave" Click="DelFav_Click"/>
+                                        <Button Style="{StaticResource SuperButton}" Margin="0,0,0,0" Background="Transparent" Foreground="White"  FontSize="10" Content="🗙" FontWeight="ExtraBold" Height="20" Width="20" MouseEnter="DelFav_Enter" MouseLeave="DelFav_Leave" Click="DelFav_Click"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -194,18 +202,16 @@
                 </Grid.OpacityMask>
                 <Slider IsMoveToPointEnabled="True" Style="{StaticResource SuperSlider}" Foreground="#FF0D7F64" Name="sldVolume" Margin="0,10,0,0" VerticalAlignment="Top" Height="10"/>
                 <Button Name="btnPrevious" Style="{StaticResource PlayerButton}" Foreground="White" Width="45" Height="45" Background="White" Content="ᐊ" FontSize="18" Margin="22,90,22,0" VerticalAlignment="Top"/>
-                <Button Name="btnPlay" Style="{StaticResource PlayerButton}" Foreground="White" Width="60" Height="60" Background="White" Content="ᐅ" FontSize="30"/>
+                <Button Focusable="False" Name="btnPlay" Style="{StaticResource PlayerButton}" Foreground="White" Width="60" Height="60" Background="White" Content="ᐅ" FontSize="30" VerticalContentAlignment="Center"/>
                 <Button Name="btnNext" Style="{StaticResource PlayerButton}" Foreground="White" Width="45" Height="45" Background="White" Content="ᐅ" FontSize="18" Margin="22,0,22,90" VerticalAlignment="Bottom"/>
-                <Button Style="{StaticResource SuperButton}" Name="btnInfinite" FontSize="20" Height="30" Margin="10,0,55,10" Background="Transparent" Foreground="White" Content="∞" VerticalAlignment="Bottom"/>
+                <Button Style="{StaticResource SuperButton}" Name="btnInfinite" FontSize="20" Height="30" Margin="15,0,55,10" Background="Transparent" Foreground="White" Content="∞" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
                 <Button Style="{StaticResource SuperButton}" Name="btnShuffle" Width="25" FontSize="15" Height="30" Margin="0,0,10,10" Background="Transparent" Foreground="White" Content="🎲" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
             </Grid>
         </Grid>
-        <Grid x:Name="panelBottom" Height="60" Margin="0,0,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" >
-            <Label Foreground="AliceBlue" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="lblState" Content="Boş" FontSize="15"/>
+        <Grid Background="Transparent" x:Name="panelBottom" Height="60" Margin="0,0,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" >
+            <Label FontFamily="Gotham Medium" FontWeight="SemiBold" Foreground="AliceBlue" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="lblState" Content="Boş" FontSize="15"/>
             <Label Foreground="White" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" x:Name="lblPosition" Content="0.00 / 0.00" FontSize="15"/>
             <Slider IsMoveToPointEnabled="True" Delay="300" x:Name="sldPosition" Margin="0,0,0,0" Foreground="#FF0D7F64" VerticalContentAlignment="Bottom" Value="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Style="{StaticResource SuperSlider}" />
         </Grid>
-
     </Grid>
-
 </Window>

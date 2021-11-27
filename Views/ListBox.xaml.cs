@@ -36,6 +36,8 @@ namespace CynthMusic.Views
             txtName.Text = holderName;
             txtURL.Text = holderURL;
 
+            MouseDown += (a, b) => DragMove();
+
             txtName.GotFocus += (a, b) =>
             {
                 if (txtName.Text == holderName)

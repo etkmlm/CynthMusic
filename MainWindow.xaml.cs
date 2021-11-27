@@ -32,11 +32,10 @@ namespace CynthMusic
         public static AddonManager addonManager;
         public static PlayerService playerService;
         public static PlaylistManager playlistManager;
-        
+
         public static readonly ConfigService configService = new()
         {
             { "LASTID", "" },
-            { "BTOP", "42,47,47" },
             { "BGENERAL", "41,41,41" },
             { "BGOPACITY", "100" },
             { "BACKGROUND", "" },
@@ -79,7 +78,7 @@ namespace CynthMusic
             musicService = new(data, client);
 
             playlistManager = new(ref lvPlaylists, ref lvPlaylist, ref lvPlaying, data, musicService, client);
-            playerService = new(ref lvPlaying, ref media, musicService, (a) => icon.ToolTipText = a);
+            playerService = new(ref lvPlaying, ref media, musicService, (a) => lblStateContext.Content = a);
             addonManager = new(ref lvLocations, ref lvFavourites, musicService);
             enumerator = new MMDeviceEnumerator();
             device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
@@ -90,8 +89,16 @@ namespace CynthMusic
                     systemVolume = a.MasterVolume;
                     return;
                 }
-                SetPlayState(!a.Muted);
-                playerService.TogglePlay(!a.Muted);
+                if (a.Muted)
+                {
+                    SetPlayState(false);
+                    playerService.TogglePlay(false);
+                }
+                else if (!a.Muted && playerService.GetPlayingID() != null)
+                {
+                    SetPlayState(true);
+                    playerService.TogglePlay(true);
+                }
             });
             update = new UpdateService();
 
@@ -123,7 +130,10 @@ namespace CynthMusic
             Restore();
 
             interop = new InteropService(true);
-            interop.PlayPausePress += async () => await Dispatcher.InvokeAsync(() => SetPlayState(playerService.TogglePlay()));
+            interop.PlayPausePress += async () => await Dispatcher.InvokeAsync(() => 
+            SetPlayState(playerService.TogglePlay()));
+            interop.MediaNextPress += async () => await Dispatcher.InvokeAsync(() => playerService.Next());
+            interop.MediaPreviousPress += async () => await Dispatcher.InvokeAsync(() => playerService.Previous());
 
             if (GetBool("FIRST"))
             {
@@ -171,12 +181,14 @@ namespace CynthMusic
             if (!playing)
             {
                 btnPlay.Content = "ᐅ";
-                btnPlayContext.Header = "Oynat";
+                btnPlayContext.Content = "ᐅ";
+                btnPlay.FontSize = 30;
             }
             else
             {
-                btnPlay.Content = "| |";
-                btnPlayContext.Header = "Duraklat";
+                btnPlay.FontSize = 40;
+                btnPlay.Content = "∣∣";
+                btnPlayContext.Content = "∣∣";
             }
         }
         public void SwitchVisibility()
@@ -184,12 +196,12 @@ namespace CynthMusic
             if (Visibility == Visibility.Visible)
             {
                 Hide();
-                btnSHWindow.Header = "Göster";
+                btnSHWindow.Foreground = new SolidColorBrush(Colors.Aqua);
             }
             else
             {
                 Show();
-                btnSHWindow.Header = "Gizle";
+                btnSHWindow.Foreground = new SolidColorBrush(Colors.White);
             }
         }
         private void SwitchMenu(int menu)
@@ -198,7 +210,8 @@ namespace CynthMusic
                 return;
             object c1 = FindName(menus[menu, 0].ToString());
             if (c1 is Button b1)
-                b1.Background = new SolidColorBrush(Color.FromRgb(20, 40, 50));
+                //b1.Background = new SolidColorBrush(Color.FromRgb(20, 40, 50));
+                b1.FontWeight = FontWeights.SemiBold;
             else
                 ((Control)c1).Visibility = Visibility.Hidden;
             Control c2 = (Control)FindName(menus[menu, 1].ToString());
@@ -210,7 +223,8 @@ namespace CynthMusic
                 {
                     object f = FindName(menus[i, 0].ToString());
                     if (f is Button b2)
-                        b2.Background = new SolidColorBrush(Colors.Transparent);
+                        //b2.Background = new SolidColorBrush(Colors.Transparent);
+                        b2.FontWeight = FontWeights.Normal;
                     ((Control)FindName(menus[i, 1].ToString())).Visibility = Visibility.Hidden;
                 }
             switchedMenu = menu;
@@ -283,16 +297,9 @@ namespace CynthMusic
         {
             string back = configService.Get("BACKGROUND");
             if (IsValidImage(back))
-            {
-                panelBottom.Background = new SolidColorBrush(Colors.Transparent);
                 panelMain.Background = new ImageBrush(new BitmapImage(new Uri(back)));
-            }
             else
-            {
-                var x = GetColor("BTOP");
-                panelBottom.Background = x == null ? new SolidColorBrush(x.Value) : bottom;
                 panelMain.Background = new SolidColorBrush(GetColor("BGENERAL") ?? Color.FromRgb(41, 41, 41));
-            }
             double opacity = (double)int.Parse(configService.Get("BGOPACITY")) / 100;
             panelListing.Opacity = opacity;
             string plT = configService.Get("PLAYERTHEME");
@@ -427,7 +434,7 @@ namespace CynthMusic
                 icon.Dispose();
                 Environment.Exit(0);
             };
-            PreviewKeyDown += (a, b) =>
+            PreviewKeyDown += async (a, b) =>
             {
                 if (b.OriginalSource is TextBox)
                     return;
@@ -451,14 +458,15 @@ namespace CynthMusic
                     playerService.Stop();
                 else if (Keyboard.Modifiers is ModifierKeys.Shift && b.Key is Key.R)
                     Shuffle();
-                else if (b.Key is Key.R)
+                else if (b.Key is Key.R && Keyboard.Modifiers != ModifierKeys.Control)
                     Infinite();
+                else if (b.Key is Key.R && Keyboard.Modifiers == ModifierKeys.Control && playerService.GetPlayingID() != null)
+                    await playerService.PlayMusicWithLoad(playerService.srcPlaying[playerService.GetPlayingID().Value - 1]);
                 else if (b.Key is Key.M)
                     sldVolume.Value = sldVolume.Value == 0 ? volume : 0;
             };
             btnMaximize.Click += (a, b) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
             btnMinimize.Click += (a, b) => WindowState = WindowState.Minimized;
-            
             btnInfo.Click += (a, b) => new AlertBox("Hakkında", $"Ürün: Cynth Müzik\nSürüm: {GetVersion()}\nYapımcı: Furkan M Yılmaz / Corelium INC").ShowDialog();
             btnPlay.Click += (a, b) =>
             {
@@ -467,7 +475,6 @@ namespace CynthMusic
                 else
                     SetPlayState(playerService.TogglePlay());
             };
-            btnStop.Click += (a, b) => playerService.Stop();
             btnPlayContext.Click += (a, b) => SetPlayState(playerService.TogglePlay());
             btnNext.Click += (a, b) => playerService.Next();
             btnNextContext.Click += (a, b) => playerService.Next();

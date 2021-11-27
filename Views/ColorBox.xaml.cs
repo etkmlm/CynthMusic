@@ -27,7 +27,7 @@ namespace CynthMusic.Views
     /// </summary>
     public partial class ColorBox : Window
     {
-        public ColorBox(bool t, Color c)
+        public ColorBox(Color c)
         {
             InitializeComponent();
 
@@ -51,11 +51,7 @@ namespace CynthMusic.Views
                     if (r > 255 || g > 255 || b > 255)
                         throw new Exception();
 
-                    Color c = Color.FromRgb(r, g, b);
-                    if (t)
-                        Settings.topColor = c;
-                    else
-                        Settings.genColor = c;
+                    Settings.genColor = Color.FromRgb(r, g, b);
                     Close();
                 }
                 catch (Exception)
