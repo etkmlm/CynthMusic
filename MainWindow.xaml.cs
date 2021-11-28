@@ -155,7 +155,7 @@ namespace CynthMusic
                 var isUp = await update.CheckUpdate(GetVersion());
                 if (isUp.Item1)
                 {
-                    var result = MessageBox.Show("Uyarı", $"Yeni bir sürüm (v{isUp.Item2.ToString().Replace(',', '.')}) mevcut!\nHemen güncellemek ister misiniz?", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    var result = MessageBox.Show($"Yeni bir sürüm (v{isUp.Item2.ToString().Replace(',', '.')}) mevcut!\nHemen güncellemek ister misiniz?", "Uyarı", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     if (result == MessageBoxResult.Yes)
                         new DownloadBox(isUp.Item3, System.IO.Path.Combine(Environment.CurrentDirectory, "New.zip")).ShowDialog();
                 }
@@ -528,7 +528,6 @@ namespace CynthMusic
                     SwitchMenu(1);
                 }
             };
-            icon.TrayLeftMouseUp += (a, b) => Show();
             lblState.MouseDoubleClick += (a, b) =>
             {
                 int? id = playerService.GetPlayingID();
