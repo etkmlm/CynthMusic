@@ -38,8 +38,8 @@ namespace CynthMusic
         private List<int> toDeleteList;
         private string playingListYT;
 
-        public PlayerService(ref ListView lvPlaying, ref MediaElement player, MusicService musicService, Action<string> setIconTip) :
-            base(ref player, setIconTip)
+        public PlayerService(ref ListView lvPlaying, ref MediaElement player, MusicService musicService) :
+            base(ref player)
         {
             this.musicService = musicService;
             this.lvPlaying = lvPlaying;
@@ -58,6 +58,12 @@ namespace CynthMusic
             cancellation.Token;
         public async Task<IMusicList> GetLoadedList() =>
             await playlistManager.GetAsync(PlaylistManager.loadedPlaylistId);
+
+        public IEnumerable<Orderable<ColorableMusic>> Filter(string q) =>
+            string.IsNullOrWhiteSpace(q) ? srcPlaying :
+            srcPlaying.Where(x =>
+                x.Item.Music.Name.ToLower().Contains(q) ||
+                (x.Item.Music.Author != null && x.Item.Music.Author.ToLower().Contains(q)));
 
         #region Play
         private async Task PlayNormalMusicList(MusicList list, bool play)
@@ -113,12 +119,12 @@ namespace CynthMusic
                 await PlayNormalMusicList((MusicList)list, play);
 
         }
-        public async Task PlayMusicWithLoad(Orderable<ColorableMusic> music, TimeSpan? position = null) =>
+        public async Task PlayMusicWithLoad(Orderable<ColorableMusic> music, TimeSpan? position = null, bool applyMedia = true) =>
             await App.Current.Dispatcher.InvokeAsync(async () =>
             {
                 if (music.Item.Music is not YouTubeMusic)
                 {
-                    Play(music.Item.Music.SaveIdentity, position);
+                    Play(music.Item.Music.SaveIdentity, position, applyMedia);
                     return;
                 }
                 var m = await musicService.GetConvertedYouTubeMusicAsync(((YouTubeMusic)music.Item.Music).YouTubeUri);
@@ -134,7 +140,7 @@ namespace CynthMusic
                 item.Item.Music.Length = m.Value.Length;
                 srcPlaying.SetItem(music.Index - 1, item);
                 lvPlaying.Items.Refresh();
-                Play(music.Item.Music.SaveIdentity, position);
+                Play(music.Item.Music.SaveIdentity, position, applyMedia);
             });
         public async Task PlayLocation(Button btn)
         {

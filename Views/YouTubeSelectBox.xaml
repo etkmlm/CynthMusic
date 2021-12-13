@@ -14,19 +14,21 @@
         <Label Content="Müziği Seç" Foreground="White" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="20"/>
         <Grid Margin="10,70,10,40" MinHeight="150">
             <Border Name="maskMenu" Background="#FF16191D" CornerRadius="10" />
-            <ListView Margin="0,0,0,0" x:Name="lvMusics" FontSize="9" Style="{StaticResource SuperListView}" SelectionMode="Single">
-                <ListView.OpacityMask>
-                    <VisualBrush Visual="{Binding ElementName=maskMenu}"/>
-                </ListView.OpacityMask>
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Header="İsim" Width="200" DisplayMemberBinding="{Binding Name}"/>
-                        <GridViewColumn Header="Sanatçı" Width="150" DisplayMemberBinding="{Binding Author}"/>
-                        <GridViewColumn Width="0" DisplayMemberBinding="{Binding YouTubeUri}"/>
-                        <GridViewColumn Width="0" DisplayMemberBinding="{Binding SaveIdentity}"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+            <ScrollViewer Background="#00a3b5" Style="{StaticResource SuperScrollViewer}">
+                <ListView x:Name="lvMusics" FontSize="9" Style="{StaticResource SuperListView}" SelectionMode="Single">
+                    <ListView.OpacityMask>
+                        <VisualBrush Visual="{Binding ElementName=maskMenu}"/>
+                    </ListView.OpacityMask>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="İsim" Width="200" DisplayMemberBinding="{Binding Name}"/>
+                            <GridViewColumn Header="Sanatçı" Width="150" DisplayMemberBinding="{Binding Author}"/>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding YouTubeUri}"/>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding SaveIdentity}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </ScrollViewer>
         </Grid>
         <Button x:Name="btnApply" Background="#FF16191D" FontSize="8" Foreground="White" Content="✓" Margin="0,0,10,10" Style="{StaticResource SuperButton}" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
     </Grid>

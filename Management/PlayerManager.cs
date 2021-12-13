@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -19,9 +20,9 @@ namespace CynthMusic.Management
     public class PlayerManager
     {
         private readonly MediaElement player;
-        private readonly Action<string> setIconTip;
         private PlayerService service => MainWindow.playerService;
         private MainWindow window = (MainWindow)App.Current.MainWindow;
+        private int retryCount = 5;
         protected bool isPlaying = false;
         public bool isLoop = false;
         public bool isListLoop = false;
@@ -29,19 +30,33 @@ namespace CynthMusic.Management
 
         protected int[] playingListOrders;
         private IMusic playingMedia;
+
+        private TimeSpan? savedPosition;
+
         private DispatcherTimer timerPosition;
 
         public bool IsPlayingList => PlayerService.PlayingListID != -1;
         public bool IsListAvailable => IsPlayingList && service.srcPlaying.Count != 0;
 
-        public PlayerManager(ref MediaElement player, Action<string> setIconTip)
+        public PlayerManager(ref MediaElement player)
         {
-            this.player = player;
-            this.setIconTip = setIconTip;
-            player.MediaEnded += (a, b) =>
+            player.MediaFailed += async (a, b) => await RetryMedia();
+            player.MediaOpened += (a, b) => retryCount = 5;
+            player.MediaEnded += async (a, b) =>
             {
+                if (this.player.Position.TotalSeconds == 0 || !this.player.NaturalDuration.HasTimeSpan || this.player.NaturalDuration.TimeSpan.TotalSeconds == 0)
+                {
+                    await RetryMedia();
+                    return;
+                }
+                if (savedPosition != null)
+                {
+                    await Play(playingMedia, -1, savedPosition);
+                    savedPosition = null;
+                    return;
+                }
                 if (isLoop)
-                    Play(playingMedia);
+                    await Play(playingMedia);
                 else if (IsListAvailable)
                 {
                     if (!Next())
@@ -50,6 +65,21 @@ namespace CynthMusic.Management
                 else
                     Stop();
             };
+            this.player = player;
+        }
+
+        public async Task RetryMedia()
+        {
+            if (retryCount == 0)
+            {
+                retryCount = 5;
+                if (IsListAvailable)
+                    Next();
+                else
+                    Stop();
+            }
+            await service.PlayMusicWithLoad(service.srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == playingMedia.SaveIdentity));
+            retryCount--;
         }
 
         public void PlayList()
@@ -82,12 +112,12 @@ namespace CynthMusic.Management
         }
 
         #region Player
-        public async void Play(IMusic music, int index = -1, TimeSpan? position = null)
+        public async Task Play(IMusic music, int index = -1, TimeSpan? position = null, bool applyMedia = true)
         {
             if (string.IsNullOrEmpty(music.PlayURL))
             {
                 if (music is YouTubeMusic)
-                    await service.PlayMusicWithLoad(service.srcPlaying.FirstOrDefault(x => x.Item.Music.Equals(music)));
+                    await service.PlayMusicWithLoad(service.srcPlaying.FirstOrDefault(x => x.Item.Music.Equals(music)), position, applyMedia);
                 else
                     Stop();
                 return;
@@ -96,11 +126,11 @@ namespace CynthMusic.Management
             window.sldPosition.Value = 0;
             player.Stop();
             player.Source = new Uri(music.PlayURL);
-            setIconTip(music.Name);
             player.Play();
             if (index != -1)
                 music.ID = index;
-            playingMedia = music;
+            if (applyMedia)
+                playingMedia = music;
 
             timerPosition = new DispatcherTimer();
             timerPosition.Tick += PositionTimer_Tick;
@@ -108,10 +138,16 @@ namespace CynthMusic.Management
             timerPosition.Start();
             window.SetPlayState(true);
             isPlaying = true;
-            window.lblState.Content = playingMedia.Name;
+            window.lblState.Content = music.Name;
+            window.lblStateContext.Content = music.Name;
 
             if (position.HasValue)
                 player.Position = position.Value;
+        }
+        public void PlayTemp(Orderable<ColorableMusic> music)
+        {
+            savedPosition = player.Position;
+            ConvertPlay(music, applyMedia: false);
         }
         private void PositionTimer_Tick(object sender, EventArgs e)
         {
@@ -136,17 +172,17 @@ namespace CynthMusic.Management
                 window.lblPosition.Content = player.Position.ToString(@"mm\.ss") + " / " + player.NaturalDuration.TimeSpan.ToString(@"mm\.ss");
             }
         }
-        public void ConvertPlay(Orderable<ColorableMusic> music, TimeSpan? position = null) =>
-            Play(music.Item.Music, music.Index, position);
-        public void Play(string identity, TimeSpan? position = null) =>
-            ConvertPlay(service.srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == identity), position);
+        public async void ConvertPlay(Orderable<ColorableMusic> music, TimeSpan? position = null, bool applyMedia = true) =>
+            await Play(music.Item.Music, music.Index, position, applyMedia);
+        public void Play(string identity, TimeSpan? position = null, bool applyMedia = true) =>
+            ConvertPlay(service.srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == identity), position, applyMedia);
         public void StopGUI()
         {
             window.SetPlayState(false);
             window.sldPosition.Value = 0;
             window.lblState.Content = "Boş";
+            window.lblStateContext.Content = "Boş";
             window.lblPosition.Content = "0.00 / 0.00";
-            setIconTip("Boş");
             window.btnShuffle.Foreground = new SolidColorBrush(Colors.White);
         }
         public void Stop()

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CynthMusic.Views"
         mc:Ignorable="d"
-        Title="Settings" Height="450" Width="450" WindowStyle="None" WindowStartupLocation="CenterScreen">
+        Title="Settings" Height="500" Width="450" WindowStyle="None" WindowStartupLocation="CenterScreen">
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
@@ -23,14 +23,20 @@
             </StackPanel>
             <Rectangle Height="10"/>
             <DockPanel>
-                <Rectangle x:Name="rctBG" Width="100" Height="100" />
-                <Rectangle x:Name="imgBack" Width="100" Height="100" HorizontalAlignment="Right" />
+                <Border CornerRadius="5" x:Name="rctBG" Width="100" Height="100" />
+                <Border CornerRadius="5" x:Name="imgBack" Width="100" Height="100" HorizontalAlignment="Right" />
             </DockPanel>
             <Rectangle Height="15"/>
             <DockPanel Margin="10,0,0,0">
                 <Label Content="Saydamlık" Foreground="White"/>
                 <Rectangle Width="15"/>
                 <Slider IsMoveToPointEnabled="True" Foreground="Aquamarine" x:Name="sldOpacity" Style="{StaticResource SuperSlider}" Maximum="100" Width="100" Interval="1" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            </DockPanel>
+            <Rectangle Height="15"/>
+            <DockPanel Margin="10,0,0,0">
+                <Label Content=" Kaydırma" Foreground="White"/>
+                <Rectangle Width="15"/>
+                <Border x:Name="rctSlider" CornerRadius="5" Width="25" Height="25" HorizontalAlignment="Left"/>
             </DockPanel>
             <Rectangle Height="15"/>
             <DockPanel Margin="10,0,0,0">

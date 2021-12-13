@@ -19,6 +19,7 @@ using NAudio.CoreAudioApi;
 using CynthCore.Utils;
 using System.Media;
 using System.Reflection;
+using System.Windows.Interop;
 
 namespace CynthMusic
 {
@@ -37,6 +38,7 @@ namespace CynthMusic
         {
             { "LASTID", "" },
             { "BGENERAL", "41,41,41" },
+            { "BGSLIDER", "0,163,181" },
             { "BGOPACITY", "100" },
             { "BACKGROUND", "" },
             { "PLAYERTHEME", "1" },
@@ -48,10 +50,11 @@ namespace CynthMusic
             { "FIRST", "TRUE" }
         };
         private readonly MusicService musicService;
+        private readonly LogService logger;
 
         private readonly object[,] menus = new object[5, 4]
         {
-            { "btnListNow", "lvPlaying", false, false }, { "btnListLists", "lvPlaylists", true, false }, { "lvPlaylists", "lvPlaylist", true, true }, { "btnListFavourites", "lvFavourites", false, true }, { "btnExplore", "lvLocations", true, false }
+            { "btnListNow", "scrPlaying", false, false }, { "btnListLists", "scrPlaylists", true, false }, { "scrPlaylists", "scrPlaylist", true, true }, { "btnListFavourites", "scrFavourites", false, true }, { "btnExplore", "scrLocations", true, false }
         };
 
         private int switchedMenu;
@@ -59,10 +62,11 @@ namespace CynthMusic
         private int listIdToRename = -1;
         public double volume = 50;
         private float systemVolume = 0;
+        private bool openMute = true;
 
         private readonly MMDeviceEnumerator enumerator;
         private readonly MMDevice device;
-        private readonly InteropService interop;
+        private InteropService interop;
         private readonly UpdateService update;
 
         private readonly Brush bottom;
@@ -71,14 +75,24 @@ namespace CynthMusic
         {
             InitializeComponent();
 
-            Initialize();
+            logger = new(System.IO.Path.Combine(Environment.CurrentDirectory, "Logs"));
 
+            InitLog("Starting initialization...");
+
+            if (System.Diagnostics.Process.GetProcessesByName("CynthMusic").Length > 1)
+            {
+                bool? result = new AlertBox("Uyarı", "Zaten çalışan bir Cynth uygulaması var, veri kaybını önlemek için çalışan örneği kapatıp yeniden deneyin. Devam etmeniz önerilmez, devam etmek istiyor musunuz?", true).ShowDialog();
+                if (result == null || !result.Value)
+                    Environment.Exit(0);
+            }
+
+            Initialize();
             YouTubeClient client = new();
             DataService data = new();
             musicService = new(data, client);
 
             playlistManager = new(ref lvPlaylists, ref lvPlaylist, ref lvPlaying, data, musicService, client);
-            playerService = new(ref lvPlaying, ref media, musicService, (a) => lblStateContext.Content = a);
+            playerService = new(ref lvPlaying, ref media, musicService);
             addonManager = new(ref lvLocations, ref lvFavourites, musicService);
             enumerator = new MMDeviceEnumerator();
             device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
@@ -91,10 +105,16 @@ namespace CynthMusic
                 }
                 if (a.Muted)
                 {
-                    SetPlayState(false);
-                    playerService.TogglePlay(false);
+                    if (GetMediaState() != MediaState.Pause)
+                    {
+                        SetPlayState(false);
+                        playerService.TogglePlay(false);
+                        openMute = true;
+                    }
+                    else
+                        openMute = false;
                 }
-                else if (!a.Muted && playerService.GetPlayingID() != null)
+                else if (!a.Muted && playerService.GetPlayingID() != null && openMute)
                 {
                     SetPlayState(true);
                     playerService.TogglePlay(true);
@@ -102,12 +122,16 @@ namespace CynthMusic
             });
             update = new UpdateService();
 
+            InitLog("1-) Generation completed.");
+
             CheckDB(data);
             SwitchMenu(0);
             if (!configService.ConfigExists())
                 configService.CreateFile();
             configService.FixFile();
             SetupArgs();
+
+            InitLog("2-) Check-up completed.");
 
             var desc = new System.ComponentModel.SortDescription("Index", System.ComponentModel.ListSortDirection.Ascending);
             CollectionView viewPlaying = (CollectionView)CollectionViewSource.GetDefaultView(lvPlaying.ItemsSource);
@@ -120,7 +144,8 @@ namespace CynthMusic
                 if (DEBUG_MODE)
                     MessageBox.Show($"Hata: {b.Exception.Message}\nStack Trace: \n{b.Exception.StackTrace}");
                 else
-                    MessageBox.Show("Program işleyişinde bir hata oluştu. " + b.Exception.HResult, "Kritik Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                    new AlertBox("Kritik Hata", "Program işleyişinde bir hata oluştu. " + b.Exception.HelpLink).ShowDialog();
+                logger.Log(LogType.ERROR, b.Exception.Message, b.Exception.StackTrace);
                 b.Handled = true;
             };
 
@@ -129,25 +154,33 @@ namespace CynthMusic
 
             Restore();
 
-            interop = new InteropService(true);
-            interop.PlayPausePress += async () => await Dispatcher.InvokeAsync(() => 
-            SetPlayState(playerService.TogglePlay()));
-            interop.MediaNextPress += async () => await Dispatcher.InvokeAsync(() => playerService.Next());
-            interop.MediaPreviousPress += async () => await Dispatcher.InvokeAsync(() => playerService.Previous());
+            InitLog("3-) Restore completed.");
 
             if (GetBool("FIRST"))
             {
                 addonManager.AddLocation(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Music").GetAwaiter().GetResult();
                 configService.Set("FIRST", "FALSE");
             }
+            InitLog("4-) Checking updates...");
             CheckUpdate();
+            InitLog("Initialization finish.");
         }
 
         #region Methods
+        private void InitLog(string content) =>
+            logger.Log(LogType.INFO, "Setup", content);
         public void SetVolume(double nowValue, double volume)
         {
             this.volume = volume;
             sldVolume.Value = nowValue == 0 ? 0 : volume;
+        }
+        private MediaState GetMediaState()
+        {
+            FieldInfo hlp = typeof(MediaElement).GetField("_helper", BindingFlags.NonPublic | BindingFlags.Instance);
+            object helperObject = hlp.GetValue(media);
+            FieldInfo stateField = helperObject.GetType().GetField("_currentState", BindingFlags.NonPublic | BindingFlags.Instance);
+            MediaState state = (MediaState)stateField.GetValue(helperObject);
+            return state;
         }
         private async void CheckUpdate() =>
             await Dispatcher.InvokeAsync(async () =>
@@ -231,7 +264,7 @@ namespace CynthMusic
 
             inpAddLocation.Visibility = Visibility.Hidden;
             inpPlaylistName.Visibility = Visibility.Hidden;
-            inpPlaylistSearch.Visibility = menu == 2 ? Visibility.Visible : Visibility.Hidden;
+            inpPlaylistSearch.Visibility = menu == 2 || menu == 0 ? Visibility.Visible : Visibility.Hidden;
             btnImport.Visibility = menu == 1 ? Visibility.Visible : Visibility.Hidden;
         }
         private void Shuffle()
@@ -300,6 +333,8 @@ namespace CynthMusic
                 panelMain.Background = new ImageBrush(new BitmapImage(new Uri(back)));
             else
                 panelMain.Background = new SolidColorBrush(GetColor("BGENERAL") ?? Color.FromRgb(41, 41, 41));
+            scrFavourites.Background = scrLocations.Background = scrPlaying.Background = scrPlaylist.Background = scrPlaylists.Background =
+                new SolidColorBrush(GetColor("BGSLIDER") ?? Color.FromRgb(0, 163, 181));
             double opacity = (double)int.Parse(configService.Get("BGOPACITY")) / 100;
             panelListing.Opacity = opacity;
             string plT = configService.Get("PLAYERTHEME");
@@ -335,6 +370,12 @@ namespace CynthMusic
             inpPlaylistName.Visibility = inpPlaylistName.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
             txtNamePlaylist.Focus();
         }
+        private void TemporaryPlay_Click(object sender, RoutedEventArgs e)
+        {
+            if (lvPlaying.SelectedItems.Count == 0)
+                return;
+            playerService.PlayTemp((Orderable<ColorableMusic>)lvPlaying.SelectedItem);
+        }
         private void LikeButton_Enter(object sender, MouseEventArgs e)
         {
             Button btn = sender as Button;
@@ -368,6 +409,16 @@ namespace CynthMusic
         }
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            var handle = new WindowInteropHelper(this).Handle;
+            interop = new InteropService(handle);
+            HwndSource source = HwndSource.FromHwnd(handle);
+            source.AddHook(interop.WndProc);
+
+            interop.PlayPausePress += async () => await Dispatcher.InvokeAsync(() =>
+            SetPlayState(playerService.TogglePlay()));
+            interop.MediaNextPress += async () => await Dispatcher.InvokeAsync(() => playerService.Next());
+            interop.MediaPreviousPress += async () => await Dispatcher.InvokeAsync(() => playerService.Previous());
+
             await playlistManager.LoadPlaylists();
             await addonManager.LoadFavourites();
             await addonManager.LoadLocations();
@@ -385,10 +436,9 @@ namespace CynthMusic
                 SwitchMenu(2);
             else
             {
-                MessageBoxResult result = MessageBox.Show("Bu liste dinamik YouTube listesi olduğundan düzenlenemez. Liste statik listeye dönüştürülsün mü?", "Uyarı", MessageBoxButton.YesNo);
-                if (result != MessageBoxResult.Yes)
-                    return;
-                await playlistManager.ConvertYouTubeListAsync(((dynamic)sender).DataContext.Item);
+                bool? result = new AlertBox("Uyarı", "Bu liste dinamik YouTube listesi olduğundan düzenlenemez. Liste statik listeye dönüştürülsün mü?", true).ShowDialog();
+                if (result != null && result.Value)
+                    await playlistManager.ConvertYouTubeListAsync(((dynamic)sender).DataContext.Item);
             }
         }
         private void ExportPlaylist_Click(object sender, RoutedEventArgs e)
@@ -616,9 +666,17 @@ namespace CynthMusic
             };
             inpPlaylistSearch.TextChanged += (a, b) =>
             {
-                string text = inpPlaylistSearch.Text;
-                var filter = playlistManager.Filter(text.ToLower());
-                lvPlaylist.ItemsSource = filter;
+                string text = inpPlaylistSearch.Text.ToLower();
+                if (switchedMenu == 0)
+                {
+                    var filter = playerService.Filter(text);
+                    lvPlaying.ItemsSource = filter;
+                }
+                else if (switchedMenu == 2)
+                {
+                    var filter = playlistManager.Filter(text);
+                    lvPlaylist.ItemsSource = filter;
+                }
             };
             btnSettings.Click += (a, b) => new Settings().ShowDialog();
             btnImport.Click += async (a, b) =>

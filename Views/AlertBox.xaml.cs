@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -23,14 +22,25 @@ namespace CynthMusic.Views
     public partial class AlertBox : Window
     {
         public static readonly Brush ALERT_COLOR = new LinearGradientBrush(Color.FromRgb(47, 47, 47), Color.FromRgb(35, 35, 35), 45);
-        public AlertBox(string title, string message)
+        public AlertBox(string title, string message, bool isResulted = false)
         {
             InitializeComponent();
-            btnExit.Click += (a, b) => Close();
+            btnExit.Click += (a, b) => Execute(false);
             Title = title;
             Background = ALERT_COLOR;
             lblTitle.Content = title;
             txtMessage.Text = message;
+
+            btnYes.Click += (a, b) => Execute(true);
+            btnNo.Click += (a, b) => Execute(false);
+
+            btnYes.Visibility = btnNo.Visibility = isResulted ? Visibility.Visible : Visibility.Hidden;
+        }
+
+        private void Execute(bool result)
+        {
+            DialogResult = result;
+            Close();
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

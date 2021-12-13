@@ -212,35 +212,6 @@
             </Style>
         </Style.Resources>
     </Style>
-    <Style x:Key="SuperScroll" TargetType="ScrollViewer">
-        <Setter Property="PanningMode" Value="Both"/>
-        <Style.Resources>
-            <Style TargetType="ScrollBar">
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="Stylus.IsPressAndHoldEnabled" Value="True"/>
-                <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ScrollBar">
-                            <Border Width="{TemplateBinding Width}">
-                                <Track Width="10" IsDirectionReversed="True" HorizontalAlignment="Center">
-                                    <Track.DecreaseRepeatButton>
-                                        <RepeatButton Width="{TemplateBinding Width}" Visibility="Hidden"/>
-                                    </Track.DecreaseRepeatButton>
-                                    <Track.Thumb>
-                                        <Thumb Background="Aqua" Padding="0.5" HorizontalAlignment="Center"/>
-                                    </Track.Thumb>
-                                    <Track.IncreaseRepeatButton>
-                                        <RepeatButton Width="{TemplateBinding Width}" Visibility="Hidden"/>
-                                    </Track.IncreaseRepeatButton>
-                                </Track>
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </Style.Resources>
-    </Style>
     <Style x:Key="SuperCheckBox" TargetType="CheckBox">
         <Setter Property="Template">
             <Setter.Value>
@@ -261,10 +232,89 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style TargetType="Button">
-        <Setter Property="Focusable" Value="False"/>
+    <Style x:Key="SuperRepeatButton2" TargetType="RepeatButton">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="IsTabStop" Value="false"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type RepeatButton}">
+                    <Border Background="Transparent" Width="0"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
-    <Style TargetType="Slider">
-        <Setter Property="Focusable" Value="False"/>
+    <Style x:Key="SuperScrollBar" TargetType="ScrollBar">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid HorizontalAlignment="Right">
+                        <Grid.RowDefinitions>
+                            <RowDefinition MaxHeight="18"/>
+                            <RowDefinition Height="0.00001*"/>
+                            <RowDefinition MaxHeight="18"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.RowSpan="3"
+                                    CornerRadius="2"
+                                Margin="0,40,0,5">
+                            <Track Name="PART_Track" Grid.Row="1" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Style="{StaticResource SuperRepeatButton2}"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Background="{TemplateBinding Background}">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border
+                                                        CornerRadius="3"
+                                                        Background="{TemplateBinding Background}"
+                                                        Width="5"
+                                                        HorizontalAlignment="Right"
+                                                        Margin="0,0,5,0"
+                                                        />
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Style="{StaticResource SuperRepeatButton2}" />
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="SuperScrollViewer" TargetType="ScrollViewer">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollViewer">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <ScrollContentPresenter Grid.Column="0"/>
+                        <ScrollBar 
+                                Name="PART_VerticalScrollBar"
+                                Background="{TemplateBinding Background}"
+                                Value="{TemplateBinding VerticalOffset}"
+                                Maximum="{TemplateBinding ScrollableHeight}"
+                                ViewportSize="{TemplateBinding ViewportHeight}"
+                                Style="{StaticResource SuperScrollBar}"
+                                HorizontalContentAlignment="Right"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 </ResourceDictionary>

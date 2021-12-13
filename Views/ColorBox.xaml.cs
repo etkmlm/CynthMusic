@@ -27,7 +27,7 @@ namespace CynthMusic.Views
     /// </summary>
     public partial class ColorBox : Window
     {
-        public ColorBox(Color c)
+        public ColorBox(Color c, bool x)
         {
             InitializeComponent();
 
@@ -51,7 +51,10 @@ namespace CynthMusic.Views
                     if (r > 255 || g > 255 || b > 255)
                         throw new Exception();
 
-                    Settings.genColor = Color.FromRgb(r, g, b);
+                    if (x)
+                        Settings.genColor = Color.FromRgb(r, g, b);
+                    else
+                        Settings.sldColor = Color.FromRgb(r, g, b);
                     Close();
                 }
                 catch (Exception)
@@ -68,7 +71,7 @@ namespace CynthMusic.Views
             int index = int.Parse(txt.Text);
             if (index is > 255 or < 0)
                 return;
-            index += e.Delta > 0 ? 1 : -1;
+            index += e.Delta > 0 ? 1 : (index != 0 ? -1 : 0);
             txt.Text = index.ToString();
         }
 

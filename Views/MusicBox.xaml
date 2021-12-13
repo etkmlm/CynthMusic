@@ -19,28 +19,30 @@
         <Separator Margin="45,140,45,0" VerticalAlignment="Top"/>
         <Grid Margin="10,160,10,40" MinHeight="150">
             <Border Name="maskMenu" Background="#FF16191D" CornerRadius="10" />
-            <ListView Margin="0,0,0,0" x:Name="lvMusics" Style="{StaticResource SuperListView}">
-                <ListView.OpacityMask>
-                    <VisualBrush Visual="{Binding ElementName=maskMenu}"/>
-                </ListView.OpacityMask>
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Width="35">
-                            <GridViewColumn.Header>
-                                <CheckBox x:Name="chkAll" Width="15" Background="#FF2B4037" Margin="0,-5,0,0" Style="{StaticResource SuperCheckBox}" Click="CheckedChangedAll" />
-                            </GridViewColumn.Header>
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <CheckBox Width="13" Background="#FF2B4037" Margin="0,0,0,0" Style="{StaticResource SuperCheckBox}" IsChecked="{Binding Item.IsSelected, Mode=OneWay}" Checked="CheckedChanged" Unchecked="CheckedChanged"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="İsim" Width="220" DisplayMemberBinding="{Binding Item.Item.Name}"/>
-                        <GridViewColumn Header="Sanatçı" Width="110" DisplayMemberBinding="{Binding Item.Item.Author}"/>
-                        <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.Item.SaveIdentity}"/>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+            <ScrollViewer Background="#00a3b5" Style="{StaticResource SuperScrollViewer}">
+                <ListView Margin="0,0,0,0" x:Name="lvMusics" Style="{StaticResource SuperListView}">
+                    <ListView.OpacityMask>
+                        <VisualBrush Visual="{Binding ElementName=maskMenu}"/>
+                    </ListView.OpacityMask>
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Width="35">
+                                <GridViewColumn.Header>
+                                    <CheckBox x:Name="chkAll" Width="15" Background="#FF2B4037" Margin="0,-5,0,0" Style="{StaticResource SuperCheckBox}" Click="CheckedChangedAll" />
+                                </GridViewColumn.Header>
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox Width="13" Background="#FF2B4037" Margin="0,0,0,0" Style="{StaticResource SuperCheckBox}" IsChecked="{Binding Item.IsSelected, Mode=OneWay}" Checked="CheckedChanged" Unchecked="CheckedChanged"/>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="İsim" Width="220" DisplayMemberBinding="{Binding Item.Item.Name}"/>
+                            <GridViewColumn Header="Sanatçı" Width="110" DisplayMemberBinding="{Binding Item.Item.Author}"/>
+                            <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.Item.SaveIdentity}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </ScrollViewer>
         </Grid>
         <TextBox x:Name="txtSearch" Background="#FF202526" BorderThickness="0" Height="30" MinWidth="220" Foreground="White" Style="{StaticResource SuperTextBox}" Margin="10,0,0,5" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
         <Button x:Name="btnApply" Background="#FF16191D" FontSize="8" Foreground="White" Content="✓" Margin="0,0,10,10" Style="{StaticResource SuperButton}" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>

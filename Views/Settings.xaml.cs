@@ -28,6 +28,7 @@ namespace CynthMusic.Views
         private ConfigService service => MainWindow.configService;
         private MainWindow window = (MainWindow)App.Current.MainWindow;
         public static Color genColor;
+        public static Color sldColor;
         private readonly Color defBack = Color.FromRgb(41, 41, 41);
         private readonly OrderableCollection<Selectable<string>> srcProperties;
         private readonly List<string> properties;
@@ -45,11 +46,19 @@ namespace CynthMusic.Views
 
             rctBG.PreviewMouseLeftButtonDown += (a, b) =>
             {
-                new ColorBox(genColor).ShowDialog();
-                rctBG.Fill = new SolidColorBrush(genColor);
+                new ColorBox(genColor, true).ShowDialog();
+                rctBG.Background = new SolidColorBrush(genColor);
                 service.Set("BGENERAL", $"{genColor.R},{genColor.G},{genColor.B}");
                 service.Set("BACKGROUND", null);
-                imgBack.Fill = new SolidColorBrush(defBack);
+                imgBack.Background = new SolidColorBrush(defBack);
+                window.RefreshTheme();
+            };
+
+            rctSlider.PreviewMouseLeftButtonDown += (a, b) =>
+            {
+                new ColorBox(sldColor, false).ShowDialog();
+                rctSlider.Background = new SolidColorBrush(sldColor);
+                service.Set("BGSLIDER", $"{sldColor.R},{sldColor.G},{sldColor.B}");
                 window.RefreshTheme();
             };
 
@@ -77,7 +86,7 @@ namespace CynthMusic.Views
                     return;
                 string file = dialog.FileName;
                 service.Set("BACKGROUND", file);
-                imgBack.Fill = new ImageBrush(new BitmapImage(new Uri(file)));
+                imgBack.Background = new ImageBrush(new BitmapImage(new Uri(file)));
                 window.RefreshTheme();
             };
 
@@ -115,11 +124,13 @@ namespace CynthMusic.Views
             chkSpecial.IsChecked = !isImage;
             chkBack.IsChecked = isImage;
             if (MainWindow.IsValidImage(back))
-                imgBack.Fill = new ImageBrush(new BitmapImage(new Uri(back)));
+                imgBack.Background = new ImageBrush(new BitmapImage(new Uri(back)));
             else
-                imgBack.Fill = new SolidColorBrush(defBack);
+                imgBack.Background = new SolidColorBrush(defBack);
             genColor = window.GetColor("BGENERAL").Value;
-            rctBG.Fill = new SolidColorBrush(genColor);
+            rctBG.Background = new SolidColorBrush(genColor);
+            sldColor = window.GetColor("BGSLIDER").Value;
+            rctSlider.Background = new SolidColorBrush(sldColor);
             sldOpacity.Value = int.Parse(service.Get("BGOPACITY"));
             string id = service.Get("PLAYERTHEME");
             chkBlue.IsChecked = id == "1";
