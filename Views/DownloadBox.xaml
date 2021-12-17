@@ -5,13 +5,24 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CynthMusic.Views"
         mc:Ignorable="d"
-        Title="AlertBox" MinHeight="150" MinWidth="300" MaxWidth="500" SizeToContent="Height" MouseLeftButtonDown="Window_MouseLeftButtonDown" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="AlertBox" MinHeight="150" MinWidth="300" MaxWidth="500" AllowsTransparency="True" SizeToContent="Height" MouseLeftButtonDown="Window_MouseLeftButtonDown" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <Style TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+        </Style>
+    </Window.Resources>
     <Grid>
         <Button x:Name="btnExit" Style="{StaticResource SuperButton}" Foreground="White" Content="X" Width="15" FontSize="8" Height="15" Background="Transparent" Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right"/>
-        <ProgressBar x:Name="progress" Maximum="100" Value="0" Height="20" Margin="10,0,10,0" VerticalAlignment="Center"/>
+        <ProgressBar x:Name="progress" Maximum="100" Value="0" Height="20" Margin="10,0,10,0" VerticalAlignment="Center">
+            <ProgressBar.Resources>
+                <Style TargetType="Border">
+                    <Setter Property="CornerRadius" Value="3"/>
+                </Style>
+            </ProgressBar.Resources>
+        </ProgressBar>
         <Label Content="%0" Foreground="White" HorizontalContentAlignment="Right" Name="lblState" FontSize="13" Margin="0,50,10,0" VerticalAlignment="Center"/>
     </Grid>
 </Window>

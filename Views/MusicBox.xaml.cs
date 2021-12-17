@@ -60,8 +60,7 @@ namespace CynthMusic.Views
                 var dialog = new OpenFileDialog
                 {
                     Multiselect = true,
-                    CheckPathExists = true,
-                    Filter = "MP3 Dosyaları|*.mp3|M4A Dosyaları|*.m4a"
+                    CheckPathExists = true
                 };
                 bool? value = dialog.ShowDialog();
                 if (!value.HasValue || !value.Value)

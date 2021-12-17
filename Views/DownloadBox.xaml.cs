@@ -33,7 +33,12 @@ namespace CynthMusic.Views
             InitializeComponent();
             Background = AlertBox.ALERT_COLOR;
             downloader = new Downloader();
-            downloader.ProgressChanged += (a) => progress.Value = a;
+            btnExit.Click += (a, b) => Environment.Exit(0);
+            downloader.ProgressChanged += (a) =>
+            {
+                progress.Value = a;
+                lblState.Content = "%" + a;
+            };
             downloader.DownloadFinished += () =>
             {
                 if (!File.Exists(DOWNLOADER_LOCATION))
