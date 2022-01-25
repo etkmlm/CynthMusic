@@ -107,18 +107,14 @@ namespace CynthMusic
                 {
                     if (GetMediaState() != MediaState.Pause)
                     {
-                        SetPlayState(false);
-                        playerService.TogglePlay(false);
+                        playerService.Pause();
                         openMute = true;
                     }
                     else
                         openMute = false;
                 }
-                else if (!a.Muted && playerService.GetPlayingID() != null && openMute)
-                {
-                    SetPlayState(true);
-                    playerService.TogglePlay(true);
-                }
+                else if (!a.Muted && playerService.playingMusic?.ID != null && openMute)
+                    playerService.Resume();
             });
             update = new UpdateService();
 
@@ -209,21 +205,7 @@ namespace CynthMusic
             base.OnMouseLeftButtonDown(e);
             DragMove();
         }
-        public void SetPlayState(bool playing)
-        {
-            if (!playing)
-            {
-                btnPlay.Content = "ᐅ";
-                btnPlayContext.Content = "ᐅ";
-                btnPlay.FontSize = 30;
-            }
-            else
-            {
-                btnPlay.FontSize = 40;
-                btnPlay.Content = "∣∣";
-                btnPlayContext.Content = "∣∣";
-            }
-        }
+        
         public void SwitchVisibility()
         {
             if (Visibility == Visibility.Visible)
@@ -267,9 +249,9 @@ namespace CynthMusic
             inpPlaylistSearch.Visibility = menu == 2 || menu == 0 ? Visibility.Visible : Visibility.Hidden;
             btnImport.Visibility = menu == 1 ? Visibility.Visible : Visibility.Hidden;
         }
-        private void Shuffle()
+        private async void Shuffle()
         {
-            if (!playerService.IsPlayingList)
+            if (!playerService.isLoaded)
                 return;
             if (playerService.isShuffled)
             {
@@ -279,7 +261,7 @@ namespace CynthMusic
             else
             {
                 playerService.Shuffle(true);
-                playerService.PlayFirst();
+                await playerService.PlayMusic(playerService.GetShuffledList().FirstOrDefault());
                 btnShuffle.Foreground = new LinearGradientBrush(Colors.Red, Colors.Aqua, 45);
             }
         }
@@ -323,8 +305,8 @@ namespace CynthMusic
         {
             if (!System.IO.File.Exists(path))
                 return false;
-            string extension = System.IO.Path.GetExtension(path);
-            return extension is ".jpg" or ".png";
+            string extension = System.IO.Path.GetExtension(path).ToLower();
+            return extension is ".jpg" or ".png" or ".jpeg";
         }
         public void RefreshTheme()
         {
@@ -374,7 +356,7 @@ namespace CynthMusic
         {
             if (lvPlaying.SelectedItems.Count == 0)
                 return;
-            playerService.PlayTemp((Orderable<ColorableMusic>)lvPlaying.SelectedItem);
+            //playerService.PlayTemp((Orderable<ColorableMusic>)lvPlaying.SelectedItem);
         }
         private void LikeButton_Enter(object sender, MouseEventArgs e)
         {
@@ -414,10 +396,10 @@ namespace CynthMusic
             HwndSource source = HwndSource.FromHwnd(handle);
             source.AddHook(interop.WndProc);
 
-            interop.PlayPausePress += async () => await Dispatcher.InvokeAsync(() =>
-            SetPlayState(playerService.TogglePlay()));
+            interop.PlayPausePress += async () => await Dispatcher.InvokeAsync(() => playerService.Switch());
             interop.MediaNextPress += async () => await Dispatcher.InvokeAsync(() => playerService.Next());
             interop.MediaPreviousPress += async () => await Dispatcher.InvokeAsync(() => playerService.Previous());
+            interop.MediaRefreshPress += async () => await Dispatcher.InvokeAsync(() => media.Position = TimeSpan.Zero);
 
             await playlistManager.LoadPlaylists();
             await addonManager.LoadFavourites();
@@ -468,7 +450,7 @@ namespace CynthMusic
                 if (b.NewValue != 0 && b.NewValue != volume)
                     volume = b.NewValue;
             };
-            sldPosition.ValueChanged += (a, b) => playerService.SetPosition(sldPosition.Value);
+            sldPosition.ValueChanged += (a, b) => media.Position = TimeSpan.FromSeconds(b.NewValue);
 
             btnExit.Click += (a, b) =>
             {
@@ -489,11 +471,11 @@ namespace CynthMusic
                 if (b.OriginalSource is TextBox)
                     return;
                 if (b.Key is Key.Space)
-                    SetPlayState(playerService.TogglePlay());
+                    playerService.Switch();
                 else if (b.Key is Key.MediaPreviousTrack)
-                    playerService.Previous();
+                    await playerService.Previous();
                 else if (b.Key is Key.MediaNextTrack)
-                    playerService.Next();
+                    await playerService.Next();
                 else if (b.Key is Key.Up)
                     sldVolume.Value += 5;
                 else if (b.Key is Key.Left)
@@ -510,8 +492,8 @@ namespace CynthMusic
                     Shuffle();
                 else if (b.Key is Key.R && Keyboard.Modifiers != ModifierKeys.Control)
                     Infinite();
-                else if (b.Key is Key.R && Keyboard.Modifiers == ModifierKeys.Control && playerService.GetPlayingID() != null)
-                    await playerService.PlayMusicWithLoad(playerService.srcPlaying[playerService.GetPlayingID().Value - 1]);
+                else if (b.Key is Key.R && Keyboard.Modifiers == ModifierKeys.Control && playerService.playingMusic?.ID != null)
+                    await playerService.PlayMusic(playerService.srcPlaying[(playerService.playingMusic?.ID).Value - 1]);
                 else if (b.Key is Key.M)
                     sldVolume.Value = sldVolume.Value == 0 ? volume : 0;
             };
@@ -523,13 +505,13 @@ namespace CynthMusic
                 if (Keyboard.Modifiers == ModifierKeys.Shift)
                     playerService.Stop();
                 else
-                    SetPlayState(playerService.TogglePlay());
+                    playerService.Switch();
             };
-            btnPlayContext.Click += (a, b) => SetPlayState(playerService.TogglePlay());
-            btnNext.Click += (a, b) => playerService.Next();
-            btnNextContext.Click += (a, b) => playerService.Next();
-            btnPrevious.Click += (a, b) => playerService.Previous();
-            btnPreviousContext.Click += (a, b) => playerService.Previous();
+            btnPlayContext.Click += (a, b) => playerService.Switch();
+            btnNext.Click += async (a, b) => await playerService.Next();
+            btnNextContext.Click += async (a, b) => await playerService.Next();
+            btnPrevious.Click += async (a, b) => await playerService.Previous();
+            btnPreviousContext.Click += async (a, b) => await playerService.Previous();
             btnListNow.Click += (a, b) => SwitchMenu(0);
             btnListLists.Click += (a, b) => SwitchMenu(1);
             btnListFavourites.Click += (a, b) => SwitchMenu(3);
@@ -580,8 +562,8 @@ namespace CynthMusic
             };
             lblState.MouseDoubleClick += (a, b) =>
             {
-                int? id = playerService.GetPlayingID();
-                if (playerService.IsPlayingList && id.HasValue)
+                int? id = playerService.playingMusic?.ID;
+                if (playerService.isLoaded && id.HasValue)
                 {
                     lvPlaying.SelectedIndex = id.Value - 1;
                     lvPlaying.ScrollIntoView(lvPlaying.Items[id.Value - 1]);
@@ -604,7 +586,7 @@ namespace CynthMusic
                 int menu = switchedMenu;
                 SwitchMenu(0);
                 if (menu == 2)
-                    await playerService.PlayLoadedList();
+                    await playerService.PlayMusicList(await playerService.GetLoadedList());
                 else if (menu == 3 && lvFavourites.Items.Count > 0)
                     await playerService.PlayFavourites();
             };
@@ -634,10 +616,7 @@ namespace CynthMusic
                 if (lvPlaying.SelectedIndex == -1)
                     return;
                 dynamic selected = lvPlaying.SelectedItems[0];
-                if (selected.Item.Music.PlayURL == null)
-                    await playerService.PlayMusicWithLoad(selected);
-                else
-                    playerService.Play(selected.Item.Music.SaveIdentity);
+                await playerService.PlayMusic(selected);
             };
             lvPlaying.KeyDown += (a, b) =>
             {

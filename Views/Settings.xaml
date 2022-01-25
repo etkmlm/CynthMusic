@@ -30,7 +30,7 @@
             <DockPanel Margin="10,0,0,0">
                 <Label Content="Saydamlık" Foreground="White"/>
                 <Rectangle Width="15"/>
-                <Slider IsMoveToPointEnabled="True" Foreground="Aquamarine" x:Name="sldOpacity" Style="{StaticResource SuperSlider}" Maximum="100" Width="100" Interval="1" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <Slider IsMoveToPointEnabled="True" Foreground="Aquamarine" x:Name="sldOpacity" Style="{StaticResource SuperSlider}" Maximum="100" Width="100" Interval="1" Height="5" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             </DockPanel>
             <Rectangle Height="15"/>
             <DockPanel Margin="10,0,0,0">

@@ -88,7 +88,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RepeatButton">
-                    <Border Height="3" Background="{TemplateBinding Background}"/>
+                    <Border Height="8" Background="{TemplateBinding Background}"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -106,7 +106,7 @@
                             <RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
-                        <Track Grid.Row="1" x:Name="PART_Track">
+                        <Track Height="{TemplateBinding Height}" Grid.Row="1" x:Name="PART_Track">
                             <Track.IncreaseRepeatButton>
                                 <RepeatButton Style="{StaticResource SuperRepeatButton}" Background="White"/>
                             </Track.IncreaseRepeatButton>
@@ -114,7 +114,7 @@
                                 <Thumb Background="{TemplateBinding Background}">
                                     <Thumb.Template>
                                         <ControlTemplate TargetType="Thumb">
-                                            <Ellipse Width="5" Height="5" Fill="Transparent"/>
+                                            <Ellipse Width="5" Height="8" Fill="Transparent"/>
                                         </ControlTemplate>
                                     </Thumb.Template>
                                 </Thumb>

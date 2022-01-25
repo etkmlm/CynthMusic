@@ -160,7 +160,7 @@ namespace CynthMusic.Management
             {
                 if (PlayerService.PlayingListID == loadedPlaylistId)
                     player.srcPlaying.MoveItem(from, to);
-                player.ApplyExchange();
+                //Applyex
             });
         }
         public async Task ConvertYouTubeListAsync(YouTubeMusicList list) => await Task.Run(async () =>
