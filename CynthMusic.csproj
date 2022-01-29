@@ -22,6 +22,11 @@
   <ItemGroup>
     <None Remove="cynth.png" />
     <None Remove="favicon.ico" />
+    <None Remove="language.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="language.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -72,5 +77,7 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

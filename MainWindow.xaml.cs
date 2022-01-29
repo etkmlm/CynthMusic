@@ -47,14 +47,17 @@ namespace CynthMusic
             { "PLINTRAY", "FALSE", "Program açıldığında oynatmak için tepsiye küçült" },
             { "FAUTH", "FALSE", "Şarkı isimlerinden sanatçıyı otomatik bul" },
             { "STM", "TRUE", "Ses kısıldığında şarkıyı otomatik durdur" },
-            { "FIRST", "TRUE" }
+            { "FIRST", "TRUE" },
+            { "LANG", "TR" }
         };
+        public static readonly LangService translator = new();
+
         private readonly MusicService musicService;
-        private readonly LogService logger;
+        public readonly LogService logger;
 
         private readonly object[,] menus = new object[5, 4]
         {
-            { "btnListNow", "scrPlaying", false, false }, { "btnListLists", "scrPlaylists", true, false }, { "scrPlaylists", "scrPlaylist", true, true }, { "btnListFavourites", "scrFavourites", false, true }, { "btnExplore", "scrLocations", true, false }
+            { "btnListNow", "scrPlaying", false, false }, { "btnListLists", "scrPlaylists", true, false }, { "scrPlaylists", "scrPlaylist", true, true }, { "btnListFavourites", "scrFavourites", true, true }, { "btnExplore", "scrLocations", true, false }
         };
 
         private int switchedMenu;
@@ -74,6 +77,8 @@ namespace CynthMusic
         public MainWindow()
         {
             InitializeComponent();
+
+            SetupLang();
 
             logger = new(System.IO.Path.Combine(Environment.CurrentDirectory, "Logs"));
 
@@ -138,9 +143,9 @@ namespace CynthMusic
             Application.Current.DispatcherUnhandledException += (a, b) =>
             {
                 if (DEBUG_MODE)
-                    MessageBox.Show($"Hata: {b.Exception.Message}\nStack Trace: \n{b.Exception.StackTrace}");
+                    MessageBox.Show($"{translator.Get("error")}: {b.Exception.Message}\nStack Trace: \n{b.Exception.StackTrace}");
                 else
-                    new AlertBox("Kritik Hata", "Program işleyişinde bir hata oluştu. " + b.Exception.HelpLink).ShowDialog();
+                    new AlertBox(translator.Get("critical"), $"{translator.Get("msgError")} {b.Exception.HelpLink}").ShowDialog();
                 logger.Log(LogType.ERROR, b.Exception.Message, b.Exception.StackTrace);
                 b.Handled = true;
             };
@@ -157,6 +162,7 @@ namespace CynthMusic
                 addonManager.AddLocation(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Music").GetAwaiter().GetResult();
                 configService.Set("FIRST", "FALSE");
             }
+
             InitLog("4-) Checking updates...");
             CheckUpdate();
             InitLog("Initialization finish.");
@@ -165,6 +171,14 @@ namespace CynthMusic
         #region Methods
         private void InitLog(string content) =>
             logger.Log(LogType.INFO, "Setup", content);
+        private void Rename(int id, string def)
+        {
+            listIdToRename = id;
+            inpPlaylistName.Visibility = inpPlaylistName.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
+            txtNamePlaylist.Text = def;
+            txtNamePlaylist.Focus();
+            txtNamePlaylist.SelectionStart = txtNamePlaylist.Text.Length;
+        }
         public void SetVolume(double nowValue, double volume)
         {
             this.volume = volume;
@@ -194,12 +208,8 @@ namespace CynthMusic
             Version version = Application.ResourceAssembly.GetName().Version;
             return $"{version.Major}.{version.Minor}";
         }
-        private async void CheckDB(DataService service)
-        {
-            if (DataService.Test())
-                return;
+        private async void CheckDB(DataService service) =>
             await service.BuildDatabase();
-        }
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnMouseLeftButtonDown(e);
@@ -225,8 +235,11 @@ namespace CynthMusic
                 return;
             object c1 = FindName(menus[menu, 0].ToString());
             if (c1 is Button b1)
-                //b1.Background = new SolidColorBrush(Color.FromRgb(20, 40, 50));
+            {
                 b1.FontWeight = FontWeights.SemiBold;
+                b1.HorizontalContentAlignment = HorizontalAlignment.Center;
+                b1.Margin = new Thickness(0, b1.Margin.Top, b1.Margin.Right, b1.Margin.Bottom);
+            }
             else
                 ((Control)c1).Visibility = Visibility.Hidden;
             Control c2 = (Control)FindName(menus[menu, 1].ToString());
@@ -238,8 +251,11 @@ namespace CynthMusic
                 {
                     object f = FindName(menus[i, 0].ToString());
                     if (f is Button b2)
-                        //b2.Background = new SolidColorBrush(Colors.Transparent);
+                    {
                         b2.FontWeight = FontWeights.Normal;
+                        b2.HorizontalContentAlignment = HorizontalAlignment.Left;
+                        b2.Margin = new Thickness(13, b2.Margin.Top, b2.Margin.Right, b2.Margin.Bottom);
+                    }
                     ((Control)FindName(menus[i, 1].ToString())).Visibility = Visibility.Hidden;
                 }
             switchedMenu = menu;
@@ -336,13 +352,51 @@ namespace CynthMusic
                 sldVolume.Foreground = new SolidColorBrush(Color.FromRgb(21, 21, 36));
             }
         }
+        public void SetupLang()
+        {
+            translator.Language = configService.Get("LANG");
+            translator.FromJS(Application.ResourceAssembly.GetManifestResourceStream("CynthMusic.language.json"));
+            
+            btnListNow.Content = translator.Get("menuNow");
+            btnListLists.Content = translator.Get("menuMyLists");
+            btnListFavourites.Content = translator.Get("menuFavs");
+            btnExplore.Content = translator.Get("menuExplore");
+            btnSettings.Content = translator.Get("settings");
+
+            lblEnterName.Content = translator.Get("enterName");
+            lblEnterLocation.Content = translator.Get("enterLocation");
+
+            grdPlaying.Columns[1].Header = translator.Get("name");
+            grdPlaying.Columns[2].Header = translator.Get("author");
+            grdPlaying.Columns[3].Header = translator.Get("length");
+
+            grdLists.Columns[0].Header = translator.Get("name");
+            grdLists.Columns[1].Header = translator.Get("creator");
+            grdLists.Columns[2].Header = translator.Get("total");
+
+            grdFavs.Columns[0].Header = translator.Get("name");
+            grdFavs.Columns[1].Header = translator.Get("author");
+
+            grdLocations.Columns[1].Header = translator.Get("location");
+
+            grdList.Columns[1].Header = translator.Get("name");
+            grdList.Columns[2].Header = translator.Get("author");
+            grdList.Columns[3].Header = translator.Get("length");
+
+            configService.SetPreview("PLINTRAY", translator.Get("setTray"));
+            configService.SetPreview("FAUTH", translator.Get("setAutoAuthor"));
+            configService.SetPreview("STM", translator.Get("setMuteStop"));
+
+            if (!(playerService?.isLoaded ?? false))
+                lblState.Content = translator.Get("idle");
+        }
         #endregion
 
         #region Events
         private async void LikeButton_Click(object sender, RoutedEventArgs e) =>
             await addonManager.AddFavourite(sender as Button);
         private async void DelFav_Click(object sender, RoutedEventArgs e) =>
-            await addonManager.DeleteFavourite(sender as Button);
+            await addonManager.DeleteFavourite((sender as dynamic).DataContext.Item);
         private async void DelLocation_Click(object sender, RoutedEventArgs e) =>
                 await addonManager.DeleteLocation(sender as Button);
         private void AddLocationPlaylist_Click(object sender, RoutedEventArgs e)
@@ -352,11 +406,11 @@ namespace CynthMusic
             inpPlaylistName.Visibility = inpPlaylistName.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
             txtNamePlaylist.Focus();
         }
-        private void TemporaryPlay_Click(object sender, RoutedEventArgs e)
+        private async void TemporaryPlay_Click(object sender, RoutedEventArgs e)
         {
             if (lvPlaying.SelectedItems.Count == 0)
                 return;
-            //playerService.PlayTemp((Orderable<ColorableMusic>)lvPlaying.SelectedItem);
+            await playerService.PlayTemp((Orderable<ColorableMusic>)lvPlaying.SelectedItem);
         }
         private void LikeButton_Enter(object sender, MouseEventArgs e)
         {
@@ -418,7 +472,7 @@ namespace CynthMusic
                 SwitchMenu(2);
             else
             {
-                bool? result = new AlertBox("Uyarı", "Bu liste dinamik YouTube listesi olduğundan düzenlenemez. Liste statik listeye dönüştürülsün mü?", true).ShowDialog();
+                bool? result = new AlertBox(translator.Get("warning"), translator.Get("msgDynamic"), true).ShowDialog();
                 if (result != null && result.Value)
                     await playlistManager.ConvertYouTubeListAsync(((dynamic)sender).DataContext.Item);
             }
@@ -433,11 +487,7 @@ namespace CynthMusic
         private void RenamePlaylist_Click(object sender, RoutedEventArgs e)
         {
             dynamic context = (sender as Button).DataContext;
-            listIdToRename = context.Item.ID;
-            inpPlaylistName.Visibility = inpPlaylistName.Visibility == Visibility.Visible ? Visibility.Hidden : Visibility.Visible;
-            txtNamePlaylist.Text = context.Item.Name;
-            txtNamePlaylist.Focus();
-            txtNamePlaylist.SelectionStart = txtNamePlaylist.Text.Length;
+            Rename((int)context.Item.ID, (string)context.Item.Name);
         }
         #endregion
 
@@ -450,19 +500,23 @@ namespace CynthMusic
                 if (b.NewValue != 0 && b.NewValue != volume)
                     volume = b.NewValue;
             };
-            sldPosition.ValueChanged += (a, b) => media.Position = TimeSpan.FromSeconds(b.NewValue);
+            sldPosition.ValueChanged += (a, b) =>
+            {
+                if ((int)media.Position.TotalSeconds != ((int)b.NewValue))
+                    media.Position = TimeSpan.FromSeconds(b.NewValue);
+            };
 
-            btnExit.Click += (a, b) =>
+            btnExit.Click += async (a, b) =>
             {
                 interop.Stop();
-                playerService.SaveState();
+                await playerService.SaveState();
                 icon.Dispose();
                 Environment.Exit(0);
             };
-            btnExitContext.Click += (a, b) =>
+            btnExitContext.Click += async (a, b) =>
             {
                 interop.Stop();
-                playerService.SaveState();
+                await playerService.SaveState();
                 icon.Dispose();
                 Environment.Exit(0);
             };
@@ -493,13 +547,13 @@ namespace CynthMusic
                 else if (b.Key is Key.R && Keyboard.Modifiers != ModifierKeys.Control)
                     Infinite();
                 else if (b.Key is Key.R && Keyboard.Modifiers == ModifierKeys.Control && playerService.playingMusic?.ID != null)
-                    await playerService.PlayMusic(playerService.srcPlaying[(playerService.playingMusic?.ID).Value - 1]);
+                    await playerService.PlayMusic(playerService.srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == playerService.playingMusic.SaveIdentity), forceRefresh: true);
                 else if (b.Key is Key.M)
                     sldVolume.Value = sldVolume.Value == 0 ? volume : 0;
             };
             btnMaximize.Click += (a, b) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
             btnMinimize.Click += (a, b) => WindowState = WindowState.Minimized;
-            btnInfo.Click += (a, b) => new AlertBox("Hakkında", $"Ürün: Cynth Müzik\nSürüm: {GetVersion()}\nYapımcı: Furkan M Yılmaz / Corelium INC").ShowDialog();
+            btnInfo.Click += (a, b) => new AlertBox(translator.Get("about"), $"{translator.Get("product")}: Cynth\n{translator.Get("version")}: {GetVersion()}\n{translator.Get("developer")}: Furkan M Yılmaz / Corelium INC").ShowDialog();
             btnPlay.Click += (a, b) =>
             {
                 if (Keyboard.Modifiers == ModifierKeys.Shift)
@@ -523,9 +577,9 @@ namespace CynthMusic
                 if (Keyboard.IsKeyDown(Key.LeftShift))
                     SwitchVisibility();
             };
-            Closing += (a, b) =>
+            Closing += async (a, b) =>
             {
-                playerService.SaveState();
+                await playerService.SaveState();
                 icon.Dispose();
             };
             btnSHWindow.Click += (a, b) => SwitchVisibility();
@@ -535,7 +589,7 @@ namespace CynthMusic
                     return;
                 bool isSuccess = await addonManager.AddLocation(txtAddLocation.Text);
                 if (!isSuccess)
-                    new AlertBox("Hata", "Lütfen geçerli bir konum girin. Konum daha önceden var olabilir veya geçersiz olabilir.").ShowDialog();
+                    new AlertBox(translator.Get("error"), translator.Get("invalidPath")).ShowDialog();
                 else
                 {
                     inpAddLocation.Visibility = Visibility.Hidden;
@@ -552,7 +606,7 @@ namespace CynthMusic
                 await playlistManager.RenamePlaylistAsync(listIdToRename, txtNamePlaylist.Text) :
                 await addonManager.AddPlaylistFromLocation(switchedLocationIdentity, txtNamePlaylist.Text);
                 if (!isSuccess)
-                    new AlertBox("Hata", "Lütfen geçerli bir liste ismi girin, boşluk veya önceden var olan bir listenin ismini koyamazsınız. Seçtiğiniz konumda müzik de olmayabilir.").ShowDialog();
+                    new AlertBox(translator.Get("error"), translator.Get("invalidName")).ShowDialog();
                 else
                 {
                     listIdToRename = -1;
@@ -575,6 +629,11 @@ namespace CynthMusic
                     new Views.ListBox().ShowDialog();
                 else if (switchedMenu == 2)
                     new MusicBox(await playerService.GetLoadedList()).ShowDialog();
+                else if (switchedMenu == 3)
+                {
+                    var x = await addonManager.ConvertFavouritesToPlaylist();
+                    Rename(x.Item1, x.Item2);
+                }
                 else if (switchedMenu == 4)
                 {
                     inpAddLocation.Visibility = inpAddLocation.Visibility == Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
@@ -662,7 +721,7 @@ namespace CynthMusic
             {
                 bool state = await playlistManager.ImportList();
                 if (!state)
-                    new AlertBox("Hata", "Dosya geçersiz.");
+                    new AlertBox(translator.Get("error"), translator.Get("invalidFile"));
                 else
                     await lvPlaylists.Dispatcher.Invoke(async () => await playlistManager.LoadPlaylists());
             };

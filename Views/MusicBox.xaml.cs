@@ -100,6 +100,10 @@ namespace CynthMusic.Views
                 else
                     lvMusics.ItemsSource = srcMusics.Where(x => x.Item.Item.Name.ToLower().Contains(q) || x.Item.Item.Author.ToLower().Contains(q));
             };
+
+            lblSelectMusics.Content = MainWindow.translator.Get("selectMusics");
+            grid.Columns[1].Header = MainWindow.translator.Get("name");
+            grid.Columns[2].Header = MainWindow.translator.Get("author");
         }
 
         private async void AddMusic(string location, IMusic music = null)

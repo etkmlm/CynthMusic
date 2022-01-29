@@ -32,25 +32,25 @@
         </tb:TaskbarIcon>
         <MediaElement Name="media" Visibility="Hidden" LoadedBehavior="Manual" Volume="0.5"/>
         <Grid Margin="0,0,0,0" Height="20" VerticalAlignment="Top">
-            <Button x:Name="btnExit" Content="X" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="20" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0"/>
-            <Button x:Name="btnMaximize" Content="▢" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,27,0"/>
-            <Button x:Name="btnMinimize" Content="_" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,54,0"/>
-            <Button x:Name="btnInfo" Content="." FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,3,81,0"/>
+            <Button Focusable="False" x:Name="btnExit" Content="X" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="20" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0"/>
+            <Button Focusable="False" x:Name="btnMaximize" Content="▢" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,27,0"/>
+            <Button Focusable="False" x:Name="btnMinimize" Content="_" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,54,0"/>
+            <Button Focusable="False" x:Name="btnInfo" Content="." FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,3,81,0"/>
         </Grid>
-        <Grid Width="100" Margin="10,30,0,70" HorizontalAlignment="Left">
+        <Grid Width="95" Margin="10,30,0,70" HorizontalAlignment="Left">
             <Border Name="maskMenu" Background="#FF2C2929" CornerRadius="5" />
             <Grid x:Name="panelMenu" Background="#FF16191D">
                 <Grid.OpacityMask>
                     <VisualBrush Visual="{Binding ElementName=maskMenu}"/>
                 </Grid.OpacityMask>
-                <Button FontFamily="Montserrat" x:Name="btnListNow" Style="{StaticResource SuperButton}" Content="Şu Anda" Background="Transparent" Height="50" FontSize="13" Foreground="White" Margin="0,0,0,0" VerticalAlignment="Top"/>
-                <Button FontFamily="Montserrat" x:Name="btnListLists" Style="{StaticResource SuperButton}" Content="Listelerim" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="0,60,0,0" VerticalAlignment="Top"/>
-                <Button FontFamily="Montserrat" x:Name="btnListFavourites" Style="{StaticResource SuperButton}" Content="Favorilerim" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="0,110,0,0" VerticalAlignment="Top"/>
-                <Button FontFamily="Montserrat" x:Name="btnExplore" Style="{StaticResource SuperButton}" Content="Keşfet" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="0,160,0,0" VerticalAlignment="Top"/>
-                <Button FontFamily="Montserrat" x:Name="btnSettings" Style="{StaticResource SuperButton}" Content="Ayarlar" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="0,0,0,10" VerticalAlignment="Bottom"/>
+                <Button HorizontalContentAlignment="Left" Focusable="False" FontFamily="Montserrat" x:Name="btnListNow" Style="{StaticResource SuperButton}" Content="Şu Anda" Background="Transparent" Height="50" FontSize="13" Foreground="White" Margin="13,0,0,0" VerticalAlignment="Top" />
+                <Button HorizontalContentAlignment="Left" Focusable="False" FontFamily="Montserrat" x:Name="btnListLists" Style="{StaticResource SuperButton}" Content="Listelerim" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="13,60,0,0" VerticalAlignment="Top"/>
+                <Button HorizontalContentAlignment="Left" Focusable="False" FontFamily="Montserrat" x:Name="btnListFavourites" Style="{StaticResource SuperButton}" Content="Favorilerim" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="13,110,0,0" VerticalAlignment="Top"/>
+                <Button HorizontalContentAlignment="Left" Focusable="False" FontFamily="Montserrat" x:Name="btnExplore" Style="{StaticResource SuperButton}" Content="Keşfet" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="13,160,0,0" VerticalAlignment="Top"/>
+                <Button HorizontalContentAlignment="Center" Focusable="False" FontFamily="Montserrat" x:Name="btnSettings" Style="{StaticResource SuperButton}" Content="Ayarlar" Background="Transparent" Height="40" FontSize="13" Foreground="White" Margin="0,0,0,10" VerticalAlignment="Bottom"/>
             </Grid>
         </Grid>
-        <Grid Margin="130,30,120,70">
+        <Grid Margin="115,30,110,70">
             <Grid x:Name="panelListing">
                 <Border Name="maskContainer" Background="#FF2C2929" CornerRadius="5"/>
                 <ScrollViewer Background="#00a3b5" x:Name="scrPlaying" Visibility="Visible" Style="{StaticResource SuperScrollViewer}">
@@ -64,7 +64,7 @@
                             </ContextMenu>
                         </ListView.ContextMenu>
                         <ListView.View>
-                            <GridView>
+                            <GridView x:Name="grdPlaying">
                                 <GridViewColumn Header="" Width="35" DisplayMemberBinding="{Binding Index}"/>
                                 <GridViewColumn Header="İsim" Width="250" DisplayMemberBinding="{Binding Item.Music.Name}"/>
                                 <GridViewColumn Header="Sanatçı" Width="100" DisplayMemberBinding="{Binding Item.Music.Author}"/>
@@ -88,7 +88,7 @@
                             <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
                         </ListView.OpacityMask>
                         <ListView.View>
-                            <GridView>
+                            <GridView x:Name="grdLists">
                                 <GridViewColumn Header="İsim" Width="225" DisplayMemberBinding="{Binding Item.Name}"/>
                                 <GridViewColumn Header="Oluşturan" Width="150" DisplayMemberBinding="{Binding Item.Author}"/>
                                 <GridViewColumn Header="Toplam" Width="75" DisplayMemberBinding="{Binding Item.MusicCount}"/>
@@ -116,7 +116,7 @@
                             <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
                         </ListView.OpacityMask>
                         <ListView.View>
-                            <GridView>
+                            <GridView  x:Name="grdList">
                                 <GridViewColumn Header="#" Width="35" DisplayMemberBinding="{Binding Index}"/>
                                 <GridViewColumn Header="İsim" Width="250" DisplayMemberBinding="{Binding Item.Name}"/>
                                 <GridViewColumn Header="Sanatçı" Width="100" DisplayMemberBinding="{Binding Item.Author}"/>
@@ -141,7 +141,7 @@
                             <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
                         </ListView.OpacityMask>
                         <ListView.View>
-                            <GridView>
+                            <GridView x:Name="grdFavs">
                                 <GridViewColumn Header="İsim" Width="280" DisplayMemberBinding="{Binding Item.Name}"/>
                                 <GridViewColumn Header="Sanatçı" Width="200" DisplayMemberBinding="{Binding Item.Author}"/>
                                 <GridViewColumn Width="50">
@@ -163,7 +163,7 @@
                             <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
                         </ListView.OpacityMask>
                         <ListView.View>
-                            <GridView>
+                            <GridView x:Name="grdLocations">
                                 <GridViewColumn Width="0" DisplayMemberBinding="{Binding Item.ID}"/>
                                 <GridViewColumn Header="Konum" Width="450" DisplayMemberBinding="{Binding Item.Path}"/>
                                 <GridViewColumn Width="100">
@@ -182,15 +182,15 @@
                     </ListView>
                 </ScrollViewer>
             </Grid>
-            <Button x:Name="btnAdd" Width="30" Height="30" Style="{StaticResource PlayerButton}" Content="+" Foreground="White" FontSize="15" Margin="10,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
-            <Button x:Name="btnPlayList" Width="30" Height="30" Style="{StaticResource PlayerButton}" Content="ᐅ" Foreground="White" FontSize="12" Margin="50,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
-            <Button x:Name="btnImport" Visibility="Hidden" Width="30" Height="30" Style="{StaticResource PlayerButton}" Content="🗁" Foreground="White" FontSize="11" Margin="90,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+            <Button Focusable="False" x:Name="btnAdd" Width="30" Height="30" Style="{StaticResource PlayerButton}" Content="+" Foreground="White" FontSize="15" Margin="10,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+            <Button Focusable="False" x:Name="btnPlayList" Width="30" Height="30" Style="{StaticResource PlayerButton}" Content="ᐅ" Foreground="White" FontSize="12" Margin="50,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+            <Button Focusable="False" x:Name="btnImport" Visibility="Hidden" Width="30" Height="30" Style="{StaticResource PlayerButton}" Content="🗁" Foreground="White" FontSize="11" Margin="90,0,0,10" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
 
             <Grid Visibility="Hidden" x:Name="inpAddLocation" Margin="10,0,0,45" Width="250" Height="75" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="#FF2B2B2B">
                 <Grid.OpacityMask>
                     <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
                 </Grid.OpacityMask>
-                <Label Content="Bir Konum Girin" Focusable="False" Margin="2,2,0,0" Width="Auto" Height="Auto" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="15" Foreground="White"/>
+                <Label x:Name="lblEnterLocation" Content="Bir Konum Girin" Focusable="False" Margin="2,2,0,0" Width="Auto" Height="Auto" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="15" Foreground="White"/>
                 <Button x:Name="btnSelectLocation" Focusable="False" Content="..." Margin="0,5,5,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="25"  Background="#FF252025" Foreground="White" Style="{StaticResource SuperButton}"/>
                 <TextBox BorderThickness="0" x:Name="txtAddLocation" Style="{StaticResource SuperTextBox}" Margin="10,0,10,10" Height="30" VerticalAlignment="Bottom" Foreground="White" Background="#FF252323"/>
             </Grid>
@@ -198,7 +198,7 @@
                 <Grid.OpacityMask>
                     <VisualBrush Visual="{Binding ElementName=maskContainer}"/>
                 </Grid.OpacityMask>
-                <Label Content="Bir İsim Girin" Margin="2,2,0,0" Width="Auto" Height="Auto" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="15" Foreground="White"/>
+                <Label x:Name="lblEnterName" Content="Bir İsim Girin" Margin="2,2,0,0" Width="Auto" Height="Auto" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="15" Foreground="White"/>
                 <TextBox BorderThickness="0" x:Name="txtNamePlaylist" Style="{StaticResource SuperTextBox}" Margin="10,0,10,10" Height="30" VerticalAlignment="Bottom" Foreground="White" Background="#FF252323"/>
             </Grid>
             <TextBox Visibility="Visible" BorderThickness="0" x:Name="inpPlaylistSearch" Background="#FF16191D" Foreground="White" Style="{StaticResource SuperTextBox}" MinWidth="200" MinHeight="30" Margin="0,0,20,10" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
@@ -215,18 +215,18 @@
                 <Grid.OpacityMask>
                     <VisualBrush Visual="{Binding ElementName=maskPlayer}"/>
                 </Grid.OpacityMask>
-                <Slider IsMoveToPointEnabled="True" Style="{StaticResource SuperSlider}" Foreground="#FF0D7F64" Name="sldVolume" Margin="0,10,0,0" VerticalAlignment="Top" Height="5"/>
-                <Button Name="btnPrevious" Style="{StaticResource PlayerButton}" Foreground="White" Width="45" Height="45" Background="White" Content="ᐊ" FontSize="18" Margin="22,90,22,0" VerticalAlignment="Top"/>
+                <Slider Focusable="False" IsMoveToPointEnabled="True" Style="{StaticResource SuperSlider}" Foreground="#FF0D7F64" Name="sldVolume" Margin="0,10,0,0" VerticalAlignment="Top" Height="5"/>
+                <Button Focusable="False" Name="btnPrevious" Style="{StaticResource PlayerButton}" Foreground="White" Width="45" Height="45" Background="White" Content="ᐊ" FontSize="18" Margin="22,90,22,0" VerticalAlignment="Top"/>
                 <Button Focusable="False" Name="btnPlay" Style="{StaticResource PlayerButton}" Foreground="White" Width="60" Height="60" Background="White" Content="ᐅ" FontSize="30" VerticalContentAlignment="Center"/>
-                <Button Name="btnNext" Style="{StaticResource PlayerButton}" Foreground="White" Width="45" Height="45" Background="White" Content="ᐅ" FontSize="18" Margin="22,0,22,90" VerticalAlignment="Bottom"/>
-                <Button Style="{StaticResource SuperButton}" Name="btnInfinite" FontSize="20" Height="30" Margin="15,0,55,10" Background="Transparent" Foreground="White" Content="∞" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
-                <Button Style="{StaticResource SuperButton}" Name="btnShuffle" Width="25" FontSize="15" Height="30" Margin="0,0,10,10" Background="Transparent" Foreground="White" Content="🎲" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+                <Button Focusable="False" Name="btnNext" Style="{StaticResource PlayerButton}" Foreground="White" Width="45" Height="45" Background="White" Content="ᐅ" FontSize="18" Margin="22,0,22,90" VerticalAlignment="Bottom"/>
+                <Button Style="{StaticResource SuperButton}" Name="btnInfinite" FontSize="20" Height="30" Focusable="False" Margin="15,0,55,10" Background="Transparent" Foreground="White" Content="∞" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
+                <Button Style="{StaticResource SuperButton}" Name="btnShuffle" Width="25" FontSize="15" Focusable="False" Height="30" Margin="0,0,10,10" Background="Transparent" Foreground="White" Content="🎲" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
             </Grid>
         </Grid>
         <Grid Background="Transparent" x:Name="panelBottom" Height="60" Margin="0,0,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" >
             <Label FontFamily="Gotham Medium" FontWeight="SemiBold" Foreground="AliceBlue" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="lblState" Content="Boş" FontSize="15"/>
             <Label Foreground="White" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" x:Name="lblPosition" Content="0.00 / 0.00" FontSize="15"/>
-            <Slider IsMoveToPointEnabled="True" Delay="300" x:Name="sldPosition" Margin="0,0,0,0" Foreground="#FF0D7F64" VerticalContentAlignment="Bottom" Value="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Style="{StaticResource SuperSlider}" />
+            <Slider IsMoveToPointEnabled="True" Height="6" Delay="300" x:Name="sldPosition" Margin="0,0,0,0" Foreground="#FF0D7F64" VerticalContentAlignment="Bottom" Value="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Style="{StaticResource SuperSlider}" />
         </Grid>
     </Grid>
 </Window>

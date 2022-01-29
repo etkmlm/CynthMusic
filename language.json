@@ -1,0 +1,202 @@
+﻿{
+  "menuNow": {
+    "TR": "Şu Anda",
+    "EN": "Now"
+  },
+  "menuMyLists": {
+    "TR": "Listelerim",
+    "EN": "My Lists"
+  },
+  "menuFavs": {
+    "TR": "Favorilerim",
+    "EN": "My Favs"
+  },
+  "menuExplore": {
+    "TR": "Keşfet",
+    "EN": "Explore"
+  },
+  "menuSettings": {
+    "TR": "Ayarlar",
+    "EN": "Settings"
+  },
+  "name": {
+    "TR": "İsim",
+    "EN": "Name"
+  },
+  "author": {
+    "TR": "Sanatçı",
+    "EN": "Author"
+  },
+  "length": {
+    "TR": "Uzunluk",
+    "EN": "Length"
+  },
+  "creator": {
+    "TR": "Oluşturan",
+    "EN": "Creator"
+  },
+  "total": {
+    "TR": "Toplam",
+    "EN": "Total"
+  },
+  "location": {
+    "TR": "Konum",
+    "EN": "Location"
+  },
+  "image": {
+    "TR": "Resim",
+    "EN": "Image"
+  },
+  "opacity": {
+    "TR": "Saydamlık",
+    "EN": "Opacity"
+  },
+  "theme": {
+    "TR": "Oynatıcı Teması",
+    "EN": "Player Theme"
+  },
+  "blue": {
+    "TR": "Mavi",
+    "EN": "Blue"
+  },
+  "purple": {
+    "TR": "Mor",
+    "EN": "Purple"
+  },
+  "black": {
+    "TR": "Siyah",
+    "EN": "Black"
+  },
+  "about": {
+    "TR": "Hakkında",
+    "EN": "About"
+  },
+  "product": {
+    "TR": "Ürün",
+    "EN": "Product"
+  },
+  "version": {
+    "TR": "Sürüm",
+    "EN": "Version"
+  },
+  "settings": {
+    "TR": "Ayarlar",
+    "EN": "Settings"
+  },
+  "developer": {
+    "TR": "Yapımcı",
+    "EN": "Creator"
+  },
+  "enterName": {
+    "TR": "Bir İsim Girin",
+    "EN": "Enter a Name"
+  },
+  "enterLocation": {
+    "TR": "Bir Konum Girin",
+    "EN": "Enter a Location"
+  },
+  "specialColor": {
+    "TR": "Özel Renk",
+    "EN": "Special Color"
+  },
+  "sliderColor": {
+    "TR": "Çubuk Rengi",
+    "EN": "Slider Color"
+  },
+  "setTray": {
+    "TR": "Cynth açıldığında oynatmak için tepsiye küçült",
+    "EN": "Minimize on tray when Cynth open"
+  },
+  "setAutoAuthor": {
+    "TR": "Şarkı isimlerinden sanatçıyı otomatik bul",
+    "EN": "Find the author from the song name"
+  },
+  "setMuteStop": {
+    "TR": "Ses kısıldığında şarkıyı otomatik durdur",
+    "EN": "Stop on mute"
+  },
+  "createList": {
+    "TR": "Liste Oluştur",
+    "EN": "Create a List"
+  },
+  "youtubeLink": {
+    "TR": "YouTube Linki (İsteğe Bağlı)",
+    "EN": "YouTube Link (Optional)"
+  },
+  "selectMusics": {
+    "TR": "Müzikleri Seç",
+    "EN": "Select Musics"
+  },
+  "selectMusic": {
+    "TR": "Müziği Seç",
+    "EN": "Select a Music"
+  },
+  "selectLocToExport": {
+    "TR": "Dışa aktarmak için bir konum seç",
+    "EN": "Select a location to export"
+  },
+  "favouriteList": {
+    "TR": "Favori Listesi",
+    "EN": "Favourite List"
+  },
+  "selectFile": {
+    "TR": "Bir dosya seç",
+    "EN": "Select a file"
+  },
+  "cml": {
+    "TR": "Corelium Müzik Listesi",
+    "EN": "Corelium Music List"
+  },
+  "idle": {
+    "TR": "Boş",
+    "EN": "Idle"
+  },
+  "invalidFile": {
+    "TR": "Dosya geçersiz.",
+    "EN": "File is invalid."
+  },
+  "error": {
+    "TR": "Hata",
+    "EN": "Error"
+  },
+  "critical": {
+    "TR": "Kritik Hata",
+    "EN": "Critical Error"
+  },
+  "invalidPath": {
+    "TR": "Lütfen geçerli bir konum girin. Konum daha önceden var olabilir veya geçersiz olabilir.",
+    "EN": "Please enter a valid path. Maybe the path is not existing or is invalid."
+  },
+  "invalidName": {
+    "TR": "Lütfen geçerli bir liste ismi girin, boşluk veya önceden var olan bir listenin ismini koyamazsınız. Seçtiğiniz konumda müzik de olmayabilir.",
+    "EN": "Please enter a valid playlist name. You cannot write space or existing playlist names. Maybe there is no song in your path."
+  },
+  "invalidList": {
+    "TR": "Liste geçersiz.",
+    "EN": "Invalid playlist."
+  },
+  "msgError": {
+    "TR": "Program işleyişinde bir hata meydana geldi.",
+    "EN": "An error occured in process."
+  },
+  "warning": {
+    "TR": "Uyarı",
+    "EN": "Warning"
+  },
+  "yes": {
+    "TR": "Evet",
+    "EN": "Yes"
+  },
+  "no": {
+    "TR": "Hayır",
+    "EN": "No"
+  },
+  "msgDynamic": {
+    "TR": "Bu liste dinamik YouTube listesi olduğundan düzenlenemez. Liste statik listeye dönüştürülsün mü?",
+    "EN": "YouTube dynamic playlists are not editable. Convert playlist to static?"
+  },
+  "msgUpdater": {
+    "TR": "Güncelleyici bulunamadı, güncelleme manuel yapılmalıdır.",
+    "EN": "The Updater cannot be found, update have to do manually."
+  }
+}

@@ -53,6 +53,10 @@ namespace CynthMusic.Views
                 Close();
             };
             btnExit.Click += (a, b) => Close();
+
+            lblSelectMusic.Content = MainWindow.translator.Get("selectMusic");
+            grid.Columns[0].Header = MainWindow.translator.Get("name");
+            grid.Columns[1].Header = MainWindow.translator.Get("author");
         }
     }
 }

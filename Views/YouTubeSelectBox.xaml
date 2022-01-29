@@ -11,7 +11,7 @@
     </WindowChrome.WindowChrome>
     <Grid Background="#FF2C2929">
         <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="15" Height="15" FontSize="8" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
-        <Label Content="Müziği Seç" Foreground="White" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="20"/>
+        <Label x:Name="lblSelectMusic" Content="Müziği Seç" Foreground="White" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="20"/>
         <Grid Margin="10,70,10,40" MinHeight="150">
             <Border Name="maskMenu" Background="#FF16191D" CornerRadius="10" />
             <ScrollViewer Background="#00a3b5" Style="{StaticResource SuperScrollViewer}">
@@ -20,7 +20,7 @@
                         <VisualBrush Visual="{Binding ElementName=maskMenu}"/>
                     </ListView.OpacityMask>
                     <ListView.View>
-                        <GridView>
+                        <GridView x:Name="grid">
                             <GridViewColumn Header="İsim" Width="200" DisplayMemberBinding="{Binding Name}"/>
                             <GridViewColumn Header="Sanatçı" Width="150" DisplayMemberBinding="{Binding Author}"/>
                             <GridViewColumn Width="0" DisplayMemberBinding="{Binding YouTubeUri}"/>

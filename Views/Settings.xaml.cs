@@ -114,6 +114,20 @@ namespace CynthMusic.Views
                 window.RefreshTheme();
             };
 
+            chkTR.Checked += (a, b) =>
+            {
+                service.Set("LANG", "TR");
+                SetupLang();
+                RefreshProps();
+            };
+
+            chkEN.Checked += (a, b) =>
+            {
+                service.Set("LANG", "EN");
+                SetupLang();
+                RefreshProps();
+            };
+
             RefreshSettings();
         }
 
@@ -136,14 +150,39 @@ namespace CynthMusic.Views
             chkBlue.IsChecked = id == "1";
             chkPurple.IsChecked = id == "2";
             chkBlack.IsChecked = id == "3";
+            string lang = service.Get("LANG").ToLower();
+            chkEN.IsChecked = lang == "en";
+            chkTR.IsChecked = lang == "tr";
 
+            RefreshProps();
+        }
+
+        private void RefreshProps()
+        {
             srcProperties.Clear();
-            foreach(var x in service.GetBooleanProperties().Where(x => service.HasPreview(x)))
+            foreach (var x in service.GetBooleanProperties().Where(x => service.HasPreview(x)))
             {
                 bool value = service.Get(x).ToLower() == "true";
                 srcProperties.Add(new Selectable<string>(service.GetPreview(x), value));
                 properties.Add(x);
             }
+        }
+
+        public void SetupLang()
+        {
+            window.SetupLang();
+
+            lblblb.Content = MainWindow.translator.Get("settings");
+            lblSpecial.Content = MainWindow.translator.Get("specialColor");
+            lblImg.Content = MainWindow.translator.Get("image");
+            lblOpacity.Content = MainWindow.translator.Get("opacity");
+            lblSlider.Content = MainWindow.translator.Get("sliderColor");
+            lblTheme.Content = MainWindow.translator.Get("theme");
+            lblLang.Content = MainWindow.translator.Get("language");
+
+            chkBlue.Content = MainWindow.translator.Get("blue");
+            chkBlack.Content = MainWindow.translator.Get("black");
+            chkPurple.Content = MainWindow.translator.Get("purple");
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)

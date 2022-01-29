@@ -34,9 +34,12 @@ namespace CynthMusic
 
         public static int PlayingListID = -1;
 
-        
         private List<int> toDeleteList;
         private string playingListYT;
+
+        private IMusic oMusic;
+        private TimeSpan oPos;
+        private bool isTemp = false;
 
         public PlayerService(ref ListView lvPlaying, ref MediaElement player, MusicService musicService) :
             base(ref player)
@@ -49,8 +52,7 @@ namespace CynthMusic
             toDeleteList = new List<int>();
             lvPlaying.ItemsSource = srcPlaying;
 
-
-            PositionChanged += (a, duration, buffering) =>
+            PositionChanged += (pos, duration, buffering) =>
             {
                 if (buffering is not 0 and not 1)
                 {
@@ -69,8 +71,8 @@ namespace CynthMusic
                         return;
                     }
                     window.sldPosition.Maximum = duration.TimeSpan.TotalSeconds;
-                    window.sldPosition.Value = a.TotalSeconds;
-                    window.lblPosition.Content = a.ToString(@"mm\.ss") + " / " + duration.TimeSpan.ToString(@"mm\.ss");
+                    window.sldPosition.Value = pos.TotalSeconds;
+                    window.lblPosition.Content = pos.ToString(@"mm\.ss") + " / " + duration.TimeSpan.ToString(@"mm\.ss");
                 }
             };
 
@@ -84,6 +86,13 @@ namespace CynthMusic
             {
                 if (!isLoop)
                 {
+                    if (isTemp)
+                    {
+                        await PlayMusic(srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == oMusic.SaveIdentity), oPos);
+                        oMusic = null;
+                        isTemp = false;
+                        return;
+                    }
                     if (a == srcPlaying.Count - 1)
                     {
                         if (isListLoop)
@@ -97,7 +106,6 @@ namespace CynthMusic
                 else
                     await PlayMusic(srcPlaying[playingMusic.ID]);
             };
-
             MediaFail += async (a) => await RetryMedia();
         }
         private async Task RetryMedia()
@@ -110,7 +118,7 @@ namespace CynthMusic
                 else
                     Stop();
             }
-            await PlayMusic(srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == playingMusic.SaveIdentity));
+            await PlayMusic(srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == playingMusic.SaveIdentity), forceRefresh: true);
             retry--;
         }
         public void CancelToken()
@@ -130,7 +138,7 @@ namespace CynthMusic
                 (x.Item.Music.Author != null && x.Item.Music.Author.ToLower().Contains(q)));
 
         #region Play
-        private async Task PlayNormalMusicList(MusicList list, bool play, string shuff = null)
+        private async Task PlayNormalMusicList(MusicList list, bool play, IEnumerable<string> shuff = null)
         {
             if (!list.Verify())
             {
@@ -153,7 +161,7 @@ namespace CynthMusic
                 await PlayMusic(srcPlaying.FirstOrDefault());
             
         }
-        private async Task PlayYouTubeMusicList(YouTubeMusicList list, CancellationToken token, bool play, string shuff) =>
+        private async Task PlayYouTubeMusicList(YouTubeMusicList list, CancellationToken token, bool play, IEnumerable<string> shuff) =>
             await lvPlaying.Dispatcher.InvokeAsync(async () =>
             {
                 playingListYT = list.YouTubeID;
@@ -168,29 +176,20 @@ namespace CynthMusic
                 }
                 ShuffSet(shuff);
             });
-        public async Task PlayMusicList(IMusicList list, bool play = true, string shuff = null)
+        public async Task PlayMusicList(IMusicList list, bool play = true, bool save = true, IEnumerable<string> shuff = null)
         {
             srcPlaying.Clear();
             Stop();
 
             PlayingListID = list.ID == -1 ? -2 : list.ID;
-            SaveState();
+            if (save)
+                await SaveState();
             if (list is YouTubeMusicList l)
                 await PlayYouTubeMusicList(l, GetToken(), play, shuff);
             else
                 await PlayNormalMusicList((MusicList)list, play, shuff);
         }
-        private void ShuffSet(string shuff)
-        {
-            ResetShuffler();
-            if (!string.IsNullOrWhiteSpace(shuff))
-            {
-                shuffler.RestoreShuffle(shuff);
-                isShuffled = true;
-                window.btnShuffle.Foreground = new LinearGradientBrush(Colors.Red, Colors.Aqua, 45);
-            }
-        }
-        public async Task PlayMusic(Orderable<ColorableMusic> music, TimeSpan? position = null, bool autoPlay = true) =>
+        public async Task PlayMusic(Orderable<ColorableMusic> music, TimeSpan? position = null, bool autoPlay = true, bool forceRefresh = false) =>
             await App.Current.Dispatcher.InvokeAsync(async () =>
             {
                 if (music.Item.Music is not YouTubeMusic)
@@ -199,7 +198,7 @@ namespace CynthMusic
                     return;
                 }
                 YouTubeMusic? m;
-                if (music.Item.Music.PlayURL == null)
+                if (music.Item.Music.PlayURL == null || forceRefresh)
                 {
                     m = await musicService.GetConvertedYouTubeMusicAsync(((YouTubeMusic)music.Item.Music).YouTubeUri);
                     if (m == null)
@@ -207,7 +206,7 @@ namespace CynthMusic
                         window.Dispatcher.Invoke(() =>
                         {
                             string msg = ExceptionManager.SolveHttp(ExceptionManager.GetExceptions("getMusicWithStream").LastOrDefault());
-                            new AlertBox("Hata", msg).ShowDialog();
+                            new AlertBox(MainWindow.translator.Get("error"), msg).ShowDialog();
                         });
                         return;
                     }
@@ -243,8 +242,7 @@ namespace CynthMusic
             base.Stop();
             SetPlayState(false);
             window.sldPosition.Value = 0;
-            window.lblState.Content = "Boş";
-            window.lblStateContext.Content = "Boş";
+            window.lblState.Content = window.lblStateContext.Content = MainWindow.translator.Get("idle");
             window.lblPosition.Content = "0.00 / 0.00";
             window.btnShuffle.Foreground = new SolidColorBrush(Colors.White);
             PlayingListID = -1;
@@ -295,6 +293,17 @@ namespace CynthMusic
                 return;
             await PlayMusic(base.Previous());
         }
+        public async Task PlayTemp(Orderable<ColorableMusic> music)
+        {
+            if (!isTemp)
+            {
+                oMusic = playingMusic;
+                oPos = window.media.Position;
+            }
+
+            await PlayMusic(music);
+            isTemp = true;
+        }
         #endregion
 
         #region Utils
@@ -305,31 +314,36 @@ namespace CynthMusic
             if (playingMusic.ID == index + 1)
                 Play(srcPlaying[index].Item.Music);
         }
-        public void SaveState()
+        public async Task SaveState()
         {
+            string x = ((int)window.volume) + "," + (int)window.sldVolume.Value;
+            config.Set("VOL", x);
+
+            await playlistManager.ClearSavedMusicsAsync();
             if (isLoaded)
             {
                 string listId = PlayingListID == -2 ? "---" + playingListYT : PlayingListID.ToString();
-                string shuffle = isShuffled ? ShufflerToString() : null;
-                int playing = playingMusic?.ID ?? 0;
+                int playing = srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == playingMusic?.SaveIdentity).Index - 1;
 
-                config.Set("LASTID", $"{listId}||{shuffle}||{playing}||{Position}");
+                config.Set("LASTID", $"{listId}||{playing}||{Position}");
+                if (isShuffled)
+                    await playlistManager.SaveMusicsAsync(shuffler.Select(x => x.Item.Music.SaveIdentity));
             }
             else
                 config.Set("LASTID", null);
-
-            string x = ((int)window.volume) + "," + (int)window.sldVolume.Value;
-            config.Set("VOL", x);
         }
         public async Task RestoreState() =>
             await Task.Run(async () =>
             {
+                string[] state = config.Get("LASTID").Split("||");
+                var saved = await playlistManager.GetSavedMusicsAsync();
+                if (state.Length != 3)
+                    return;
+
+                bool tray = config.Get("PLINTRAY").ToLower() == "true";
+
                 try
                 {
-                    string[] state = config.Get("LASTID").Split("||");
-                    if (state.Length != 4)
-                        return;
-
                     IMusicList list;
                     if (state[0].StartsWith("---"))
                     {
@@ -343,23 +357,18 @@ namespace CynthMusic
                     if (list == null)
                         return;
 
-                    await lvPlaying.Dispatcher.InvokeAsync(async () => 
-                        await PlayMusicList(list, false, state[1]));
+                    await lvPlaying.Dispatcher.InvokeAsync(async () =>
+                        await PlayMusicList(list, false, false, saved));
                     int count = list.Musics.Count();
                     while (srcPlaying.Count != count) ;
 
-                    if (!CheckShuffleCorrection(state[1]))
-                    {
-                        
-                    }
-
                     try
                     {
-                        int number = int.Parse(state[2]);
+                        int number = int.Parse(state[1]);
                         await PlayMusic(
-                            srcPlaying[number <= 1 ? 0 : number], 
-                            TimeSpan.ParseExact(state[3], @"hh\.mm\.ss", CultureInfo.CurrentCulture),
-                            false);
+                            srcPlaying[number <= 1 ? 0 : number],
+                            TimeSpan.ParseExact(state[2], @"hh\.mm\.ss", CultureInfo.CurrentCulture),
+                            tray);
                     }
                     catch (Exception e) when (e is ArgumentOutOfRangeException or InvalidOperationException)
                     {
@@ -369,41 +378,48 @@ namespace CynthMusic
                     {
                         while (!isLoaded) ;
                     }
+                }
+                catch (Exception e)
+                {
+                    await App.Current.Dispatcher.InvokeAsync(() => window.logger.Log(LogType.ERROR, "Restore Error", e.Message + "\n" + e.StackTrace));
+                }
 
-
-                    App.Current.Dispatcher.Invoke(() =>
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    try
                     {
                         string[] vol = config.Get("VOL").Split(',');
                         window.SetVolume(int.Parse(vol[1]), int.Parse(vol[0]));
 
-                        if (config.Get("PLINTRAY").ToLower() == "true")
-                        {
-                            Resume();
+                        if (tray)
                             window.SwitchVisibility();
-                        }
-                        else
-                            Pause();
-                    });
-                }
-                catch (Exception e)
-                {
-                    System.Diagnostics.Debug.WriteLine(e.StackTrace + "\n\n" + e.Message);
-                }
+                    }
+                    catch (Exception e)
+                    {
+                        window.logger.Log(LogType.ERROR, "Restore Error", e.Message);
+                    }
+                });
             });
-        private bool CheckShuffleCorrection(string q)
+        private bool CheckShuffleCorrection() =>
+            srcPlaying.Count != shuffler.Count() || (!shuffler.Except(srcPlaying).Any() && !srcPlaying.Except(shuffler).Any());
+        private void FixShuffle()
         {
-            string[] splt = q.Split(',');
-            return srcPlaying.Count != splt.Length || srcPlaying.All(x => splt.Any(y => y == (x.Index - 1).ToString()));
+            foreach (var x in shuffler.Except(srcPlaying).ToList())
+                shuffler.Remove(x);
+            foreach (var x in srcPlaying.Except(shuffler))
+                shuffler.Add(x);
         }
-        private void FixShuffle(string q)
+        private void ShuffSet(IEnumerable<string> shuff)
         {
-            string[] splt = q.Split(',');
-            foreach (var x in srcPlaying)
-                if (!splt.Contains((x.Index - 1).ToString()))
-                    shuffler.Add(x);
-            for (int i = 0; i < splt.Length; i++)
-                if (!srcPlaying.Any(y => (y.Index - 1).ToString() == splt[i]))
-                    shuffler.Remove(i);
+            ResetShuffler();
+            if (shuff != null)
+            {
+                shuffler.FromEnumerable(shuff.Select(x => srcPlaying.FirstOrDefault(y => y.Item.Music.SaveIdentity == x)));
+                if (CheckShuffleCorrection())
+                    FixShuffle();
+                isShuffled = true;
+                window.btnShuffle.Foreground = new LinearGradientBrush(Colors.Red, Colors.Aqua, 45);
+            }
         }
         public new void Shuffle(bool reverse) =>
             base.Shuffle(reverse);

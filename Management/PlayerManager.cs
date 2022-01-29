@@ -48,15 +48,20 @@ namespace CynthMusic.Management
             ResetShuffler();
             timer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(1000)
+                Interval = TimeSpan.FromMilliseconds(800)
             };
-            timer.Tick += (a, b) => PositionChanged.Invoke(this.player.Position, this.player.NaturalDuration, this.player.BufferingProgress);
+            timer.Tick += (a, b) =>
+            {
+                pos = this.player.Position;
+                PositionChanged.Invoke(this.player.Position, this.player.NaturalDuration, this.player.BufferingProgress);
+            };
 
             player.MediaEnded += (a, b) => MediaEnd.Invoke(GetMediaIndex());
 
             player.MediaFailed += (a, b) => MediaFail.Invoke(b.ErrorException);
 
             player.MediaOpened += (a, b) => retry = 5;
+
         }
 
         protected void Play(IMusic music, TimeSpan? position = null, bool autoPlay = true)
@@ -64,27 +69,33 @@ namespace CynthMusic.Management
             playingMusic = music;
             player.Stop();
             player.Source = new Uri(music.PlayURL);
-            player.Position = position ?? TimeSpan.Zero;
-            MediaChanged.Invoke(music, autoPlay);
+
             if (!timer.IsEnabled)
                 timer.Start();
             if (autoPlay)
                 player.Play();
+
+            MediaChanged.Invoke(music, autoPlay);
             isPlaying = autoPlay;
             isLoaded = true;
+
+            if (position.HasValue)
+                player.Position = position.Value;
         }
+
+        private TimeSpan pos;
 
         public void Resume()
         {
-            timer.Start();
             player.Play();
+            player.Position = pos;
             isPlaying = true;
         }
 
         protected void Pause()
         {
-            timer.Stop();
             player.Pause();
+            pos = player.Position;
             isPlaying = false;
         }
 
@@ -111,7 +122,7 @@ namespace CynthMusic.Management
             srcPlaying[GetPreviousMediaIndex(nowIndex)];
 
         private int GetMediaIndex() =>
-            isShuffled ? shuffler.FirstOrDefault(x => x.Item.Music == playingMusic).Index - 1 : srcPlaying.FirstOrDefault(x => x.Item.Music == playingMusic).Index - 1;
+            isShuffled ? shuffler.FindIndex(x => x.Item.Music == playingMusic) : srcPlaying.FirstOrDefault(x => x.Item.Music == playingMusic).Index - 1;
 
         private int GetNextMediaIndex(int? media = null)
         {

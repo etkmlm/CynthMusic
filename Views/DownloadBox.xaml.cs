@@ -42,7 +42,7 @@ namespace CynthMusic.Views
             downloader.DownloadFinished += () =>
             {
                 if (!File.Exists(DOWNLOADER_LOCATION))
-                    new AlertBox("Hata", "Güncelleyici bulunamadı, güncelleme manuel yapılmalıdır.").ShowDialog();
+                    new AlertBox(MainWindow.translator.Get("error"), MainWindow.translator.Get("msgUpdater")).ShowDialog();
                 else
                     Process.Start(DOWNLOADER_LOCATION, "CynthMusic");
                 Environment.Exit(0);

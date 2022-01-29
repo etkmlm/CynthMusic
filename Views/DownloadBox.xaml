@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CynthMusic.Views"
         mc:Ignorable="d"
-        Title="AlertBox" MinHeight="150" MinWidth="300" MaxWidth="500" AllowsTransparency="True" SizeToContent="Height" MouseLeftButtonDown="Window_MouseLeftButtonDown" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
+        Title="" MinHeight="150" MinWidth="300" MaxWidth="500" AllowsTransparency="True" SizeToContent="Height" MouseLeftButtonDown="Window_MouseLeftButtonDown" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>

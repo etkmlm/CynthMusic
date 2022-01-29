@@ -81,7 +81,7 @@ namespace CynthMusic.Management
             var state = await musicService.AddFavouriteAsync(item.Item.Music.Name, item.Item.Music.Author, item.Item.Music.SaveIdentity);
             btn.Tag = state.Item2;
             if (!state.Item2)
-                await DelFav(item.Item.Music);
+                await DeleteFavourite(item.Item.Music);
             else
             {
                 var f = item.Item.Music;
@@ -89,12 +89,7 @@ namespace CynthMusic.Management
                 srcFavourites.Add(f);
             }
         }
-        public async Task DeleteFavourite(Button btn)
-        {
-            var item = (Orderable<IMusic>)btn.DataContext;
-            await DelFav(item.Item);
-        }
-        private async Task DelFav(IMusic item)
+        public async Task DeleteFavourite(IMusic item)
         {
             var find = srcFavourites.FirstOrDefault(x => x.Item.Equals(item));
             await musicService.RemoveFavouriteAsync(find.Item.ID);
@@ -109,6 +104,17 @@ namespace CynthMusic.Management
         }
         public IEnumerable<IMusic> GetAllFavourites() =>
             srcFavourites.Select(x => x.Item);
+        public async Task<(int, string)> ConvertFavouritesToPlaylist()
+        {
+            string name = MainWindow.translator.Get("favouriteList");
+            MusicList list = new()
+            {
+                Author = Environment.UserName,
+                Name = name,
+                Musics = GetAllFavourites()
+            };
+            return (await playlistManager.AddPlaylistAsync(list), name);
+        }
         #endregion
 
     }

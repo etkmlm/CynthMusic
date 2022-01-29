@@ -27,7 +27,7 @@ namespace CynthMusic.Views
     /// </summary>
     public partial class ListBox : Window
     {
-        private const string holderURL = "YouTube Linki (İsteğe Bağlı)", holderName = "İsim";
+        private readonly string holderURL = MainWindow.translator.Get("youtubeLink"), holderName = MainWindow.translator.Get("name");
         private IMusicList loadedYouTubeList;
         private PlaylistManager manager => MainWindow.playlistManager;
         public ListBox()
@@ -76,6 +76,8 @@ namespace CynthMusic.Views
             btnApply.Click += async (a, b) => await Apply();
 
             txtName.Focus();
+
+            lblCreateList.Content = MainWindow.translator.Get("createList");
         }
 
         private async System.Threading.Tasks.Task LoadYT()
@@ -83,7 +85,7 @@ namespace CynthMusic.Views
             var list = await manager.GetYouTubeListAsync(txtURL.Text, manager.GetAlgCheck(), manager.GetAlgAuthors());
             if (list == null)
             {
-                new AlertBox("Hata", "Liste geçersiz.").ShowDialog();
+                new AlertBox(MainWindow.translator.Get("error"), MainWindow.translator.Get("invalidList")).ShowDialog();
                 txtURL.Clear();
                 txtURL.Background = new SolidColorBrush(Color.FromRgb(255, 22, 25));
                 return;
@@ -97,12 +99,12 @@ namespace CynthMusic.Views
         {
             if (string.IsNullOrWhiteSpace(txtName.Text))
             {
-                new AlertBox("Hata", "Lütfen geçerli bir liste ismi girin.").ShowDialog();
+                new AlertBox(MainWindow.translator.Get("error"), MainWindow.translator.Get("invalidName")).ShowDialog();
                 return;
             }
             if (await manager.Contains(txtName.Text))
             {
-                new AlertBox("Hata", "Aynı isme sahip bir liste zaten bulunuyor.").ShowDialog();
+                new AlertBox(MainWindow.translator.Get("error"), MainWindow.translator.Get("invalidName")).ShowDialog();
                 return;
             }
 

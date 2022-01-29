@@ -35,6 +35,8 @@ namespace CynthMusic.Views
             btnNo.Click += (a, b) => Execute(false);
 
             btnYes.Visibility = btnNo.Visibility = isResulted ? Visibility.Visible : Visibility.Hidden;
+            btnYes.Content = MainWindow.translator.Get("yes");
+            btnNo.Content = MainWindow.translator.Get("no");
         }
 
         private void Execute(bool result)

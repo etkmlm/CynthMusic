@@ -160,7 +160,6 @@ namespace CynthMusic.Management
             {
                 if (PlayerService.PlayingListID == loadedPlaylistId)
                     player.srcPlaying.MoveItem(from, to);
-                //Applyex
             });
         }
         public async Task ConvertYouTubeListAsync(YouTubeMusicList list) => await Task.Run(async () =>
@@ -172,8 +171,8 @@ namespace CynthMusic.Management
         {
             SaveFileDialog dialog = new SaveFileDialog
             {
-                Title = "Dışa aktarılacak konum seçin",
-                Filter = "Corelium Müzik Listesi|*.cml"
+                Title = MainWindow.translator.Get("selectLocation"),
+                Filter = MainWindow.translator.Get("cml") + "|*.cml"
             };
             bool? show = dialog.ShowDialog();
             if (!show.HasValue || !show.Value)
@@ -185,8 +184,8 @@ namespace CynthMusic.Management
         {
             OpenFileDialog dialog = new OpenFileDialog
             {
-                Title = "Bir dosya seç",
-                Filter = "Cynth Müzik Listesi|*.cml"
+                Title = MainWindow.translator.Get("selectFile"),
+                Filter = MainWindow.translator.Get("cml") + "|*.cml"
             };
             bool? show = dialog.ShowDialog();
             if (!show.HasValue || !show.Value)
