@@ -1,6 +1,5 @@
 # CynthMusic
 Fast, useful and basic music program.
-(Version 0.8 doesn't support multi-language.)
 
 ## Warning
 You should download [KLite Codec Pack](https://codecguide.com/download_kl.htm) to work program as normal. (Basic is enough.)
