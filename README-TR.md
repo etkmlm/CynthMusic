@@ -20,6 +20,6 @@ coreliumdev@gmail.com
 
 ## Resimler
 
-![](https://i.hizliresim.com/qvo6z9w.png)
+![](https://i.hizliresim.com/pn97f34.png)
 
-![](https://i.hizliresim.com/iixey1o.png)
+![](https://i.hizliresim.com/r6nmy9z.png)
