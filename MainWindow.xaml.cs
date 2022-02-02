@@ -88,7 +88,7 @@ namespace CynthMusic
 
             if (System.Diagnostics.Process.GetProcessesByName("CynthMusic").Length > 1)
             {
-                bool? result = new AlertBox("Uyarı", "Zaten çalışan bir Cynth uygulaması var, veri kaybını önlemek için çalışan örneği kapatıp yeniden deneyin. Devam etmeniz önerilmez, devam etmek istiyor musunuz?", true).ShowDialog();
+                bool? result = new AlertBox(translator.Get("warning"), translator.Get("cynthOpen"), true).ShowDialog();
                 if (result == null || !result.Value)
                     Environment.Exit(0);
             }

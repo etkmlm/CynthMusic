@@ -218,5 +218,9 @@
   "imgFiles": {
     "TR": "Resim Dosyaları",
     "EN": "Image Files"
+  },
+  "cynthOpen": {
+    "TR": "Cynth zaten çalışıyor, veri kaybını önlemek için çalışan örneği kapatıp yeniden deneyin.\nDevam etmeniz önerilmez, devam etmek istiyor musunuz?",
+    "EN": "Cynth is already running, close the running app and try again to prevent data lost.\nIt's not recommended to continue, do you want to continue?"
   }
 }
