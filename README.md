@@ -21,6 +21,6 @@ coreliumdev@gmail.com
 
 ## Images
 
-![](https://i.hizliresim.com/qvo6z9w.png)
+![](https://i.hizliresim.com/9yg8pcq.png)
 
-![](https://i.hizliresim.com/iixey1o.png)
+![](https://i.hizliresim.com/njwselp.png)
