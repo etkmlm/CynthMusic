@@ -73,10 +73,12 @@ namespace CynthMusic
         private readonly UpdateService update;
 
         private readonly Brush bottom;
+        public readonly Brush defImg;
 
         public MainWindow()
         {
             InitializeComponent();
+            defImg = imgMusic.Fill;
 
             SetupLang();
 
@@ -122,7 +124,6 @@ namespace CynthMusic
                     playerService.Resume();
             });
             update = new UpdateService();
-
             InitLog("1-) Generation completed.");
 
             CheckDB(data);
@@ -153,9 +154,9 @@ namespace CynthMusic
             bottom = panelBottom.Background;
             RefreshTheme();
 
-            Restore();
-
-            InitLog("3-) Restore completed.");
+            var b = (System.Windows.Media.Animation.Storyboard)Resources["ImgBoard"];
+            b.Begin();
+            b.Pause();
 
             if (GetBool("FIRST"))
             {
@@ -163,7 +164,7 @@ namespace CynthMusic
                 configService.Set("FIRST", "FALSE");
             }
 
-            InitLog("4-) Checking updates...");
+            InitLog("3-) Checking updates...");
             CheckUpdate();
             InitLog("Initialization finish.");
         }
@@ -235,11 +236,7 @@ namespace CynthMusic
                 return;
             object c1 = FindName(menus[menu, 0].ToString());
             if (c1 is Button b1)
-            {
                 b1.FontWeight = FontWeights.SemiBold;
-                b1.HorizontalContentAlignment = HorizontalAlignment.Center;
-                b1.Margin = new Thickness(0, b1.Margin.Top, b1.Margin.Right, b1.Margin.Bottom);
-            }
             else
                 ((Control)c1).Visibility = Visibility.Hidden;
             Control c2 = (Control)FindName(menus[menu, 1].ToString());
@@ -251,11 +248,7 @@ namespace CynthMusic
                 {
                     object f = FindName(menus[i, 0].ToString());
                     if (f is Button b2)
-                    {
                         b2.FontWeight = FontWeights.Normal;
-                        b2.HorizontalContentAlignment = HorizontalAlignment.Left;
-                        b2.Margin = new Thickness(13, b2.Margin.Top, b2.Margin.Right, b2.Margin.Bottom);
-                    }
                     ((Control)FindName(menus[i, 1].ToString())).Visibility = Visibility.Hidden;
                 }
             switchedMenu = menu;
@@ -308,8 +301,6 @@ namespace CynthMusic
         }
         public bool GetBool(string column) =>
             configService.Get(column).ToLower() == "true";
-        public async void Restore() =>
-            await playerService.RestoreState();
         public Color? GetColor(string column, bool d = false)
         {
             string[] spl = (d ? configService.GetDefault(column) : configService.Get(column)).Split(',');
@@ -393,6 +384,14 @@ namespace CynthMusic
         #endregion
 
         #region Events
+        private async void Exit(object s, RoutedEventArgs e)
+        {
+            interop?.Stop();
+            if (playerService is not null)
+                await playerService.SaveState();
+            icon?.Dispose();
+            Environment.Exit(0);
+        }
         private async void LikeButton_Click(object sender, RoutedEventArgs e) =>
             await addonManager.AddFavourite(sender as Button);
         private async void DelFav_Click(object sender, RoutedEventArgs e) =>
@@ -458,6 +457,8 @@ namespace CynthMusic
             await playlistManager.LoadPlaylists();
             await addonManager.LoadFavourites();
             await addonManager.LoadLocations();
+
+            await playerService.RestoreState();
         }
         private async void PlayLocation_Click(object sender, RoutedEventArgs e)
         {
@@ -500,26 +501,8 @@ namespace CynthMusic
                 if (b.NewValue != 0 && b.NewValue != volume)
                     volume = b.NewValue;
             };
-            sldPosition.ValueChanged += (a, b) =>
-            {
-                if ((int)media.Position.TotalSeconds != ((int)b.NewValue))
-                    media.Position = TimeSpan.FromSeconds(b.NewValue);
-            };
+            sldPosition.ValueChanged += (a, b) => media.Position = TimeSpan.FromSeconds(b.NewValue);
 
-            btnExit.Click += async (a, b) =>
-            {
-                interop.Stop();
-                await playerService.SaveState();
-                icon.Dispose();
-                Environment.Exit(0);
-            };
-            btnExitContext.Click += async (a, b) =>
-            {
-                interop.Stop();
-                await playerService.SaveState();
-                icon.Dispose();
-                Environment.Exit(0);
-            };
             PreviewKeyDown += async (a, b) =>
             {
                 if (b.OriginalSource is TextBox)
@@ -553,7 +536,6 @@ namespace CynthMusic
             };
             btnMaximize.Click += (a, b) => WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
             btnMinimize.Click += (a, b) => WindowState = WindowState.Minimized;
-            btnInfo.Click += (a, b) => new AlertBox(translator.Get("about"), $"{translator.Get("product")}: Cynth\n{translator.Get("version")}: {GetVersion()}\n{translator.Get("developer")}: Furkan M Yılmaz / Corelium INC").ShowDialog();
             btnPlay.Click += (a, b) =>
             {
                 if (Keyboard.Modifiers == ModifierKeys.Shift)

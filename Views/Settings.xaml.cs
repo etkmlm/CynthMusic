@@ -78,8 +78,8 @@ namespace CynthMusic.Views
             {
                 OpenFileDialog dialog = new()
                 {
-                    Filter = "Resim Dosyaları (*.png, *.jpg, *.jpeg)|*.png;*.jpg;*.jpeg",
-                    Title = "Bir Resim Seç"
+                    Filter = MainWindow.translator.Get("imgFiles") + " (*.png, *.jpg, *.jpeg)|*.png;*.jpg;*.jpeg",
+                    Title = MainWindow.translator.Get("selectImage")
                 };
                 var result = dialog.ShowDialog();
                 if (!result.HasValue || !result.Value)
@@ -127,6 +127,14 @@ namespace CynthMusic.Views
                 SetupLang();
                 RefreshProps();
             };
+
+            btnAbout.Click += (a, b) => new AlertBox(
+                MainWindow.translator.Get("about"),
+                $"{MainWindow.translator.Get("product")}: Cynth\n" +
+                $"{MainWindow.translator.Get("version")}: {MainWindow.GetVersion()}\n" +
+                $"{MainWindow.translator.Get("developer")}: Furkan M Yılmaz / Corelium INC").ShowDialog();
+
+            btnFeedback.Click += (a, b) => new AlertBox(MainWindow.translator.Get("feedback"), MainWindow.translator.Get("feedbackDesc")).ShowDialog();
 
             RefreshSettings();
         }
@@ -183,6 +191,8 @@ namespace CynthMusic.Views
             chkBlue.Content = MainWindow.translator.Get("blue");
             chkBlack.Content = MainWindow.translator.Get("black");
             chkPurple.Content = MainWindow.translator.Get("purple");
+            btnFeedback.Content = MainWindow.translator.Get("feedback");
+            btnAbout.Content = MainWindow.translator.Get("about");
         }
 
         private void CheckBox_Checked(object sender, RoutedEventArgs e)

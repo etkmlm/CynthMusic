@@ -91,6 +91,11 @@
                     </ListView.View>
                 </ListView>
             </Grid>
+            <Rectangle Height="5"/>
+            <Grid>
+                <Button x:Name="btnAbout" Style="{StaticResource SuperButton}" Content="Hakkında" Background="Transparent" Foreground="White" Width="75" Height="20" HorizontalAlignment="Right"/>
+                <Button x:Name="btnFeedback" Style="{StaticResource SuperButton}" Content="Geri Bildirim" Background="Transparent" Foreground="White" Width="75" Height="20" Margin="0,0,80,0" HorizontalAlignment="Right"/>
+            </Grid>
         </StackPanel>
     </Grid>
 </Window>

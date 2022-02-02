@@ -48,11 +48,8 @@ namespace CynthMusic.Views
                 Environment.Exit(0);
             };
 
-            Download(link, destination);
+            Loaded += async (a, b) => await downloader.Download(link, destination);
         }
-
-        private async void Download(string link, string destination) =>
-            await downloader.Download(link, destination);
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {

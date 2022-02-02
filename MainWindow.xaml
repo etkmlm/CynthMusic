@@ -6,11 +6,21 @@
         xmlns:local="clr-namespace:CynthMusic" xmlns:tb="http://www.hardcodet.net/taskbar"
         mc:Ignorable="d"
         Title="Cynth Müzik" Height="548" Width="850" WindowStyle="None" Icon="/cynth.png" Loaded="Window_Loaded">
+    <Window.Resources>
+        <Storyboard x:Key="ImgBoard" >
+            <DoubleAnimation From="0" To="360" Duration="0:0:10.000" RepeatBehavior="Forever" Storyboard.TargetName="imgMusic" Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"/>
+        </Storyboard>
+    </Window.Resources>
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
     <Grid x:Name="panelMain" Background="#ff2c2929">
-        <tb:TaskbarIcon x:Name="icon" IconSource="/favicon.ico">
+        <tb:TaskbarIcon x:Name="icon" IconSource="/favicon.ico" >
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu Style="{StaticResource SuperContext}">
+                    <MenuItem Header="Çıkış" Click="Exit"/>
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
             <tb:TaskbarIcon.TrayPopup>
                 <Border CornerRadius="5">
                     <Border.Background>
@@ -24,7 +34,7 @@
                         <Button VerticalContentAlignment="Center" FontSize="15" Foreground="White" Style="{StaticResource PlayerButton}" Width="40" Height="40" Margin="50,0,0,66" VerticalAlignment="Bottom" HorizontalAlignment="Left" x:Name="btnPreviousContext" Content="ᐊ"/>
                         <Button VerticalContentAlignment="Center" FontSize="25" Foreground="White" Style="{StaticResource PlayerButton}" Width="50" Height="50" Margin="0,0,0,60" VerticalAlignment="Bottom" HorizontalAlignment="Center" x:Name="btnPlayContext" Content="ᐅ"/>
                         <Button VerticalContentAlignment="Center" FontSize="15" Foreground="White" Style="{StaticResource PlayerButton}" Width="40" Height="40" Margin="0,0,50,66" VerticalAlignment="Bottom" HorizontalAlignment="Right" x:Name="btnNextContext" Content="ᐅ"/>
-                        <Button VerticalContentAlignment="Center" FontSize="13" Background="Transparent" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" x:Name="btnExitContext" Content="X"/>
+                        <Button VerticalContentAlignment="Center" FontSize="13" Background="Transparent" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Margin="0,0,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Content="X" Click="Exit"/>
                         <Button VerticalContentAlignment="Center" FontSize="13" Background="Transparent" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="25" Margin="0,0,35,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" x:Name="btnSHWindow" Content="👁"/>
                     </Grid>
                 </Border>
@@ -32,10 +42,9 @@
         </tb:TaskbarIcon>
         <MediaElement Name="media" Visibility="Hidden" LoadedBehavior="Manual" Volume="0.5"/>
         <Grid Margin="0,0,0,0" Height="20" VerticalAlignment="Top">
-            <Button Focusable="False" x:Name="btnExit" Content="X" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="20" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0"/>
+            <Button Focusable="False" Click="Exit" Content="X" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="20" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0"/>
             <Button Focusable="False" x:Name="btnMaximize" Content="▢" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,27,0"/>
             <Button Focusable="False" x:Name="btnMinimize" Content="_" FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,54,0"/>
-            <Button Focusable="False" x:Name="btnInfo" Content="." FontSize="8" Foreground="White" Style="{StaticResource SuperButton}" Width="25" Height="15" Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,3,81,0"/>
         </Grid>
         <Grid Width="95" Margin="10,30,0,70" HorizontalAlignment="Left">
             <Border Name="maskMenu" Background="#FF2C2929" CornerRadius="5" />
@@ -224,7 +233,15 @@
             </Grid>
         </Grid>
         <Grid Background="Transparent" x:Name="panelBottom" Height="60" Margin="0,0,0,0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" >
-            <Label FontFamily="Gotham Medium" FontWeight="SemiBold" Foreground="AliceBlue" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="lblState" Content="Boş" FontSize="15"/>
+            <Ellipse Width="40" Height="40" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10,5,0,0" x:Name="imgMusic" RenderTransformOrigin="0.5,0.5" >
+                <Ellipse.RenderTransform>
+                    <RotateTransform Angle="0"/>
+                </Ellipse.RenderTransform>
+                <Ellipse.Fill>
+                    <ImageBrush ImageSource="record.png" Stretch="UniformToFill" />
+                </Ellipse.Fill>
+            </Ellipse>
+            <Label FontFamily="Gotham Medium" FontWeight="SemiBold" Foreground="AliceBlue" Margin="60,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" x:Name="lblState" Content="Boş" FontSize="15"/>
             <Label Foreground="White" Margin="10,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" x:Name="lblPosition" Content="0.00 / 0.00" FontSize="15"/>
             <Slider IsMoveToPointEnabled="True" Height="6" Delay="300" x:Name="sldPosition" Margin="0,0,0,0" Foreground="#FF0D7F64" VerticalContentAlignment="Bottom" Value="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Style="{StaticResource SuperSlider}" />
         </Grid>

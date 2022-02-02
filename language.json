@@ -198,5 +198,25 @@
   "msgUpdater": {
     "TR": "Güncelleyici bulunamadı, güncelleme manuel yapılmalıdır.",
     "EN": "The Updater cannot be found, update have to do manually."
+  },
+  "exit": {
+    "TR": "Çıkış",
+    "EN": "Exit"
+  },
+  "feedback": {
+    "TR": "Geri Bildirim",
+    "EN": "Feedback"
+  },
+  "feedbackDesc": {
+    "TR": "Program hakkındaki geri bildirimlerinizi coreliumdev@gmail.com adresine iletebilirsiniz.\nEğer yaşadığınız bir sorun hakkında geri bildirim verecekseniz sorunu detaylandırıp gerekirse program konumundaki loglar ile beraber gönderebilirsiniz.",
+    "EN": "You can feedback to coreliumdev@gmail.com mail address.\nIf you want to feedback about a problem, you should write details and if it is necessary you should add logs that contain in the program folder."
+  },
+  "selectImage": {
+    "TR": "Bir Resim Seçin",
+    "EN": "Select Image"
+  },
+  "imgFiles": {
+    "TR": "Resim Dosyaları",
+    "EN": "Image Files"
   }
 }

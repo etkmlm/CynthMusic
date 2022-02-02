@@ -23,6 +23,7 @@
     <None Remove="cynth.png" />
     <None Remove="favicon.ico" />
     <None Remove="language.json" />
+    <None Remove="record.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,6 +50,7 @@
   <ItemGroup>
     <Resource Include="cynth.png" />
     <Resource Include="favicon.ico" />
+    <Resource Include="record.png" />
   </ItemGroup>
 
   <ItemGroup>

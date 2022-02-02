@@ -41,6 +41,7 @@ namespace CynthMusic.Management
         public bool isPlaying = false;
         public bool isLoaded = false;
         protected int retry = 5;
+        private TimeSpan? ps;
 
         public PlayerManager(ref MediaElement player)
         {
@@ -56,11 +57,22 @@ namespace CynthMusic.Management
                 PositionChanged.Invoke(this.player.Position, this.player.NaturalDuration, this.player.BufferingProgress);
             };
 
+            player.MediaFailed += (a, b) =>
+            MediaFail.Invoke(b.ErrorException);
+
+            player.MediaOpened += (a, b) =>
+            {
+                if (ps.HasValue)
+                {
+                    while (!this.player.NaturalDuration.HasTimeSpan) ;
+                    this.player.Position = ps.Value;
+                    ps = null;
+                }
+
+                retry = 5;
+            };
+
             player.MediaEnded += (a, b) => MediaEnd.Invoke(GetMediaIndex());
-
-            player.MediaFailed += (a, b) => MediaFail.Invoke(b.ErrorException);
-
-            player.MediaOpened += (a, b) => retry = 5;
 
         }
 
@@ -68,19 +80,20 @@ namespace CynthMusic.Management
         {
             playingMusic = music;
             player.Stop();
+            player.Source = null;
             player.Source = new Uri(music.PlayURL);
 
-            if (!timer.IsEnabled)
-                timer.Start();
             if (autoPlay)
                 player.Play();
+            if (!timer.IsEnabled)
+                timer.Start();
 
             MediaChanged.Invoke(music, autoPlay);
             isPlaying = autoPlay;
             isLoaded = true;
 
             if (position.HasValue)
-                player.Position = position.Value;
+                ps = position.Value;
         }
 
         private TimeSpan pos;
@@ -102,10 +115,11 @@ namespace CynthMusic.Management
         protected void Stop()
         {
             player.Stop();
+            player.Source = null;
             playingMusic = null;
             isPlaying = false;
             isShuffled = false;
-            isLoaded = true;
+            isLoaded = false;
             timer.Stop();
         }
 
@@ -127,17 +141,13 @@ namespace CynthMusic.Management
         private int GetNextMediaIndex(int? media = null)
         {
             int index = media ?? GetMediaIndex();
-            if (index == srcPlaying.Count - 1)
-                return -1;
-            return isShuffled ? shuffler.ElementAt(index + 1).Index - 1 : index + 1;
+            return index == srcPlaying.Count - 1 ? index : (isShuffled ? shuffler.ElementAt(index + 1).Index - 1 : index + 1);
         }
 
         private int GetPreviousMediaIndex(int? media = null)
         {
             int index = media ?? GetMediaIndex();
-            if (index == 0)
-                return -1;
-            return isShuffled ? shuffler.ElementAt(index - 1).Index - 1 : index - 1;
+            return index == 0 ? 0 : (isShuffled ? shuffler.ElementAt(index - 1).Index - 1 : index - 1);
         }
 
         protected void Shuffle(bool state)

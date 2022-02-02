@@ -18,6 +18,8 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Windows.Media;
 using CynthMusic.Views;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 
 namespace CynthMusic
 {
@@ -88,9 +90,7 @@ namespace CynthMusic
                 {
                     if (isTemp)
                     {
-                        await PlayMusic(srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == oMusic.SaveIdentity), oPos);
-                        oMusic = null;
-                        isTemp = false;
+                        await RestoreTemp();
                         return;
                     }
                     if (a == srcPlaying.Count - 1)
@@ -113,10 +113,11 @@ namespace CynthMusic
             if (retry == 0)
             {
                 retry = 5;
-                if (isPlaying)
+                if (isLoaded)
                     await Next();
                 else
                     Stop();
+                return;
             }
             await PlayMusic(srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == playingMusic.SaveIdentity), forceRefresh: true);
             retry--;
@@ -178,7 +179,6 @@ namespace CynthMusic
             });
         public async Task PlayMusicList(IMusicList list, bool play = true, bool save = true, IEnumerable<string> shuff = null)
         {
-            srcPlaying.Clear();
             Stop();
 
             PlayingListID = list.ID == -1 ? -2 : list.ID;
@@ -192,8 +192,25 @@ namespace CynthMusic
         public async Task PlayMusic(Orderable<ColorableMusic> music, TimeSpan? position = null, bool autoPlay = true, bool forceRefresh = false) =>
             await App.Current.Dispatcher.InvokeAsync(async () =>
             {
-                if (music.Item.Music is not YouTubeMusic)
+                if (music.Item.Music is Music mm)
                 {
+                    byte[] buff = mm.Thumbnail?.Data.Data;
+                    if (buff != null)
+                    {
+                        var img = new BitmapImage();
+                        using (var stream = new System.IO.MemoryStream(buff))
+                        {
+                            stream.Position = 0;
+                            img.BeginInit();
+                            img.CreateOptions = BitmapCreateOptions.PreservePixelFormat;
+                            img.CacheOption = BitmapCacheOption.OnLoad;
+                            img.StreamSource = stream;
+                            img.EndInit();
+                        }
+                        img.Freeze();
+                        window.imgMusic.Fill = new ImageBrush(img);
+                    }
+                    
                     Play(music.Item.Music, position, autoPlay);
                     return;
                 }
@@ -219,6 +236,7 @@ namespace CynthMusic
                 item.Item.Music.Length = m.Value.Length;
                 srcPlaying.SetItem(music.Index - 1, item);
                 lvPlaying.Items.Refresh();
+                window.imgMusic.Fill = ((YouTubeMusic)music.Item.Music).Thumbnail != null ? new ImageBrush(new BitmapImage(new Uri(m.Value.Thumbnail))) : window.defImg;
                 Play(music.Item.Music, position, autoPlay);
             });
         public async Task PlayLocation(Button btn)
@@ -241,6 +259,7 @@ namespace CynthMusic
         {
             base.Stop();
             SetPlayState(false);
+            window.imgMusic.Fill = window.defImg;
             window.sldPosition.Value = 0;
             window.lblState.Content = window.lblStateContext.Content = MainWindow.translator.Get("idle");
             window.lblPosition.Content = "0.00 / 0.00";
@@ -256,12 +275,14 @@ namespace CynthMusic
                 window.btnPlay.Content = "ᐅ";
                 window.btnPlayContext.Content = "ᐅ";
                 window.btnPlay.FontSize = 30;
+                ((Storyboard)window.Resources["ImgBoard"]).Pause();
             }
             else
             {
                 window.btnPlay.FontSize = 40;
                 window.btnPlay.Content = "∣∣";
                 window.btnPlayContext.Content = "∣∣";
+                ((Storyboard)window.Resources["ImgBoard"]).Resume();
             }
         }
         public new void Pause()
@@ -285,13 +306,19 @@ namespace CynthMusic
         {
             if (!isLoaded)
                 return;
-            await PlayMusic(base.Next(nIndex));
+            if (isTemp)
+                await RestoreTemp();
+            else
+                await PlayMusic(base.Next(nIndex));
         }
         public async Task Previous()
         {
             if (!isLoaded)
                 return;
-            await PlayMusic(base.Previous());
+            if (isTemp)
+                await RestoreTemp();
+            else
+                await PlayMusic(base.Previous());
         }
         public async Task PlayTemp(Orderable<ColorableMusic> music)
         {
@@ -304,15 +331,30 @@ namespace CynthMusic
             await PlayMusic(music);
             isTemp = true;
         }
+        private async Task RestoreTemp()
+        {
+            await PlayMusic(srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == oMusic.SaveIdentity), oPos);
+            oMusic = null;
+            isTemp = false;
+        }
         #endregion
 
         #region Utils
         public async Task RefreshPlaying() => await lvPlaying.Dispatcher.InvokeAsync(() => lvPlaying.Items.Refresh());
-        public void RemoveMusic(int index)
+        public async Task RemoveMusic(Orderable<IMusic> m)
         {
-            srcPlaying.DeleteItem(index);
-            if (playingMusic.ID == index + 1)
-                Play(srcPlaying[index].Item.Music);
+            var item = srcPlaying[m.Index - 1];
+            srcPlaying.DeleteItem(m.Index - 1);
+            if (isShuffled)
+                shuffler.Remove(item);
+            if (playingMusic.SaveIdentity == m.Item.SaveIdentity)
+                await Next();
+        }
+        public void AddMusic(IMusic m)
+        {
+            srcPlaying.Add(new ColorableMusic(m));
+            if (isShuffled)
+                shuffler.Add(srcPlaying.Last());
         }
         public async Task SaveState()
         {
@@ -360,7 +402,7 @@ namespace CynthMusic
                     await lvPlaying.Dispatcher.InvokeAsync(async () =>
                         await PlayMusicList(list, false, false, saved));
                     int count = list.Musics.Count();
-                    while (srcPlaying.Count != count) ;
+                    //while (srcPlaying.Count != count) ;
 
                     try
                     {
@@ -412,7 +454,7 @@ namespace CynthMusic
         private void ShuffSet(IEnumerable<string> shuff)
         {
             ResetShuffler();
-            if (shuff != null)
+            if (shuff != null && shuff.Any())
             {
                 shuffler.FromEnumerable(shuff.Select(x => srcPlaying.FirstOrDefault(y => y.Item.Music.SaveIdentity == x)));
                 if (CheckShuffleCorrection())

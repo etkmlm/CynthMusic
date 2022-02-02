@@ -100,9 +100,8 @@ namespace CynthMusic.Management
             await App.Current.Dispatcher.InvokeAsync(async () =>
             {
                 await UpdateMusicsAsync(loadedPlaylistId, srcMusics.Select(x => x.Item));
-
                 if (PlayerService.PlayingListID == loadedPlaylistId)
-                    player.RemoveMusic(item.Value.Index - 1);
+                    await player.RemoveMusic(item.Value);
             });
         }
         public async Task AddMusicsAsync(IMusicList list, IEnumerable<IMusic> musics) =>
@@ -114,23 +113,7 @@ namespace CynthMusic.Management
                 {
                     srcMusics.Add(x);
                     if (a)
-                    {
-                        player.srcPlaying.Add(new ColorableMusic(x));
-                        if (x is YouTubeMusic)
-                        {
-                            int index = player.srcPlaying.LastOrDefault().Index;
-                            var music = await musicService.GetConvertedYouTubeMusicAsync(((YouTubeMusic)x).YouTubeUri);
-                            if (music == null)
-                            {
-                                string msg = ExceptionManager.SolveHttp(ExceptionManager.GetExceptions("getMusicWithStream").LastOrDefault());
-                                new AlertBox("Hata", msg).ShowDialog();
-                                return;
-                            }
-                            player.srcPlaying[index - 1].Item.Music.PlayURL = music.Value.PlayURL;
-                            player.srcPlaying[index - 1].Item.Music.Length = music.Value.Length;
-                            lvPlaying.Items.Refresh();
-                        }
-                    }
+                        player.AddMusic(x);
                 }
             });
         public async Task UpdateMusicsAsync(int id, IEnumerable<IMusic> musics)
