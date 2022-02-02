@@ -80,11 +80,15 @@ namespace CynthMusic
             InitializeComponent();
             defImg = imgMusic.Fill;
 
-            SetupLang();
-
             logger = new(System.IO.Path.Combine(Environment.CurrentDirectory, "Logs"));
 
             InitLog("Starting initialization...");
+
+            if (!configService.ConfigExists())
+                configService.CreateFile();
+            configService.FixFile();
+
+            SetupLang();
 
             if (System.Diagnostics.Process.GetProcessesByName("CynthMusic").Length > 1)
             {
@@ -124,16 +128,11 @@ namespace CynthMusic
                     playerService.Resume();
             });
             update = new UpdateService();
-            InitLog("1-) Generation completed.");
 
             CheckDB(data);
             SwitchMenu(0);
-            if (!configService.ConfigExists())
-                configService.CreateFile();
-            configService.FixFile();
+            
             SetupArgs();
-
-            InitLog("2-) Check-up completed.");
 
             var desc = new System.ComponentModel.SortDescription("Index", System.ComponentModel.ListSortDirection.Ascending);
             CollectionView viewPlaying = (CollectionView)CollectionViewSource.GetDefaultView(lvPlaying.ItemsSource);
@@ -164,7 +163,6 @@ namespace CynthMusic
                 configService.Set("FIRST", "FALSE");
             }
 
-            InitLog("3-) Checking updates...");
             CheckUpdate();
             InitLog("Initialization finish.");
         }
