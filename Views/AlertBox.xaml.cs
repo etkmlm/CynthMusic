@@ -41,7 +41,7 @@ namespace CynthMusic.Views
 
         private void Execute(bool result)
         {
-            DialogResult = result;
+            try { DialogResult = result; } catch (Exception) { }
             Close();
         }
 

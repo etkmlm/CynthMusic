@@ -705,6 +705,8 @@ namespace CynthMusic
                 else
                     await lvPlaylists.Dispatcher.Invoke(async () => await playlistManager.LoadPlaylists());
             };
+            btnRefresh.Click += async (a, b) =>
+                await playerService.PlayMusic(playerService.srcPlaying.FirstOrDefault(x => x.Item.Music.SaveIdentity == playerService.playingMusic.SaveIdentity), forceRefresh: true);
         }
         #endregion
     }

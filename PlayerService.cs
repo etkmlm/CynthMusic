@@ -192,6 +192,9 @@ namespace CynthMusic
         public async Task PlayMusic(Orderable<ColorableMusic> music, TimeSpan? position = null, bool autoPlay = true, bool forceRefresh = false) =>
             await App.Current.Dispatcher.InvokeAsync(async () =>
             {
+                if (music.Item.Music is null)
+                    return;
+
                 if (music.Item.Music is Music mm)
                 {
                     byte[] buff = mm.Thumbnail?.Data.Data;
@@ -223,8 +226,9 @@ namespace CynthMusic
                         window.Dispatcher.Invoke(() =>
                         {
                             string msg = ExceptionManager.SolveHttp(ExceptionManager.GetExceptions("getMusicWithStream").LastOrDefault());
-                            new AlertBox(MainWindow.translator.Get("error"), msg).ShowDialog();
+                            new AlertBox(MainWindow.translator.Get("error"), msg + "\n\nVideo: " + music.Item.Music.Name).Show();
                         });
+                        await Next();
                         return;
                     }
                 }
