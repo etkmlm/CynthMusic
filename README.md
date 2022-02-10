@@ -1,6 +1,5 @@
 # CynthMusic
 Fast, useful and basic music program.
-(Version 0.8 doesn't support multi-language.)
 
 ## Warning
 You should download [KLite Codec Pack](https://codecguide.com/download_kl.htm) to work program as normal. (Basic is enough.)
@@ -22,6 +21,6 @@ coreliumdev@gmail.com
 
 ## Images
 
-![](https://i.hizliresim.com/qvo6z9w.png)
+![](https://i.hizliresim.com/9yg8pcq.png)
 
-![](https://i.hizliresim.com/iixey1o.png)
+![](https://i.hizliresim.com/njwselp.png)
