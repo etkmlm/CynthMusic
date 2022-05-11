@@ -12,6 +12,8 @@
     <Grid Background="#FF2C2929">
         <Button x:Name="btnExit" Content="X" Foreground="White" Style="{StaticResource SuperButton}" Width="15" Height="15" FontSize="8" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,15,10,0"/>
         <Label x:Name="lblCreateList" Content="Liste Oluştur" Foreground="White" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" FontSize="20"/>
+        <Label x:Name="lblSongs" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,55,30,0" Content="0/0" Foreground="White"/>
+        <Label x:Name="lblSong" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,55,0,0" Content="" Foreground="White"/>
         <Grid Margin="20,75,20,40" Height="50" VerticalAlignment="Top">
             <TextBox x:Name="txtURL" Background="#FF16191D" BorderThickness="0" Height="30" MinWidth="220" Foreground="White" Style="{StaticResource SuperTextBox}"/>
             <Button x:Name="btnApplyURL" Background="#FF2C2929" Margin="0,0,5,0" Height="20" HorizontalAlignment="Right" Width="25" Content=">" Foreground="White" Style="{StaticResource SuperButton}"/>

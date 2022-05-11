@@ -20,6 +20,7 @@ using System.Windows.Media;
 using CynthMusic.Views;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using System.Net;
 
 namespace CynthMusic
 {
@@ -81,6 +82,7 @@ namespace CynthMusic
             MediaChanged += (a, b) =>
             {
                 window.lblState.Content = window.lblStateContext.Content = a.Name;
+                window.lblAuthorContext.Content = a.Author;
                 if (b)
                     SetPlayState(true);
             };
@@ -225,10 +227,10 @@ namespace CynthMusic
                     {
                         window.Dispatcher.Invoke(() =>
                         {
-                            string msg = ExceptionManager.SolveHttp(ExceptionManager.GetExceptions("getMusicWithStream").LastOrDefault());
+                            string msg = ExceptionManager.SolveHttp(ExceptionManager.GetExceptions("getMusicWithStream").LastOrDefault()).SolveHttpCode();
                             new AlertBox(MainWindow.translator.Get("error"), msg + "\n\nVideo: " + music.Item.Music.Name).Show();
                         });
-                        await Next();
+                        await Next(music.Index - 1);
                         return;
                     }
                 }
@@ -243,6 +245,7 @@ namespace CynthMusic
                 window.imgMusic.Fill = ((YouTubeMusic)music.Item.Music).Thumbnail != null ? new ImageBrush(new BitmapImage(new Uri(m.Value.Thumbnail))) : window.defImg;
                 Play(music.Item.Music, position, autoPlay);
             });
+
         public async Task PlayLocation(Button btn)
         {
             var item = (Orderable<Location>)btn.DataContext;
@@ -472,5 +475,17 @@ namespace CynthMusic
         public IEnumerable<Orderable<ColorableMusic>> GetShuffledList() =>
             shuffler;
         #endregion
+    }
+
+    public static class HttpCodeTool
+    {
+        public static string SolveHttpCode(this HttpStatusCode code) =>
+            code switch
+            {
+                HttpStatusCode.BadRequest => MainWindow.translator.Get("badRequest"),
+                HttpStatusCode.TooManyRequests => MainWindow.translator.Get("rateLimit"),
+                HttpStatusCode.Forbidden => MainWindow.translator.Get("invalidRequest"),
+                _ => MainWindow.translator.Get("ytError")
+            };
     }
 }

@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 using CynthMusic.Management;
+using CynthCore;
 
 namespace CynthMusic.Views
 {
@@ -27,7 +28,9 @@ namespace CynthMusic.Views
     /// </summary>
     public partial class ListBox : Window
     {
-        private readonly string holderURL = MainWindow.translator.Get("youtubeLink"), holderName = MainWindow.translator.Get("name");
+        private readonly string holderURL = MainWindow.translator.Get("onlineLink"), holderName = MainWindow.translator.Get("name");
+        private SpotifyClient spotify = MainWindow.spotify;
+
         private IMusicList loadedYouTubeList;
         private PlaylistManager manager => MainWindow.playlistManager;
         public ListBox()
@@ -63,7 +66,7 @@ namespace CynthMusic.Views
             txtURL.KeyDown += async (a, b) =>
             {
                 if (b.Key == Key.Enter)
-                    await LoadYT();
+                    await LoadOnline();
             };
             txtName.KeyDown += async (a, b) =>
             {
@@ -71,7 +74,7 @@ namespace CynthMusic.Views
                     await Apply();
             };
 
-            btnApplyURL.Click += async (a, b) => await LoadYT();
+            btnApplyURL.Click += async (a, b) => await LoadOnline();
 
             btnApply.Click += async (a, b) => await Apply();
 
@@ -80,9 +83,19 @@ namespace CynthMusic.Views
             lblCreateList.Content = MainWindow.translator.Get("createList");
         }
 
-        private async System.Threading.Tasks.Task LoadYT()
+        private async System.Threading.Tasks.Task LoadOnline()
         {
-            var list = await manager.GetYouTubeListAsync(txtURL.Text, manager.GetAlgCheck(), manager.GetAlgAuthors());
+            IMusicList list;
+            string url = txtURL.Text;
+            if (url.Contains("spotify.com"))
+                list = await spotify.GetSpotifyPlaylist(url, (a, b, c) =>
+                {
+                    lblSong.Content = a;
+                    lblSongs.Content = b + "/" + c;
+                });
+            else
+                list = await manager.GetYouTubeListAsync(url, manager.GetAlgCheck(), manager.GetAlgAuthors());
+
             if (list == null)
             {
                 new AlertBox(MainWindow.translator.Get("error"), MainWindow.translator.Get("invalidList")).ShowDialog();
@@ -91,7 +104,7 @@ namespace CynthMusic.Views
                 return;
             }
             loadedYouTubeList = list;
-            txtURL.Text = list.Value.Name;
+            txtURL.Text = list.Name;
             txtURL.Background = new SolidColorBrush(Colors.Green);
         }
 

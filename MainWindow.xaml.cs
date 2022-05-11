@@ -33,6 +33,7 @@ namespace CynthMusic
         public static AddonManager addonManager;
         public static PlayerService playerService;
         public static PlaylistManager playlistManager;
+        public static SpotifyClient spotify;
 
         public static readonly ConfigService configService = new()
         {
@@ -128,6 +129,7 @@ namespace CynthMusic
                     playerService.Resume();
             });
             update = new UpdateService();
+            spotify = new SpotifyClient();
 
             CheckDB(data);
             SwitchMenu(0);
@@ -195,12 +197,8 @@ namespace CynthMusic
             await Dispatcher.InvokeAsync(async () =>
             {
                 var isUp = await update.CheckUpdate(GetVersion());
-                if (isUp.Item1)
-                {
-                    var result = MessageBox.Show($"Yeni bir sürüm (v{isUp.Item2.ToString().Replace(',', '.')}) mevcut!\nHemen güncellemek ister misiniz?", "Uyarı", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    if (result == MessageBoxResult.Yes)
-                        new DownloadBox(isUp.Item3, System.IO.Path.Combine(Environment.CurrentDirectory, "New.zip")).ShowDialog();
-                }
+                if (isUp.Item1 && (new AlertBox(translator.Get("warning"), $"{translator.Get("wantUpdate")}\n{translator.Get("version")}: v{isUp.Item2.ToString().Replace(',', '.')}", true).ShowDialog() ?? false))
+                    new DownloadBox(isUp.Item3, System.IO.Path.Combine(Environment.CurrentDirectory, "New.zip")).ShowDialog();
             });
         public static string GetVersion()
         {

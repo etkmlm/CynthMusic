@@ -120,8 +120,8 @@
     "EN": "Create a List"
   },
   "youtubeLink": {
-    "TR": "YouTube Linki (İsteğe Bağlı)",
-    "EN": "YouTube Link (Optional)"
+    "TR": "YouTube ya da Spotify Linki (İsteğe Bağlı)",
+    "EN": "YouTube or Spotify Link (Optional)"
   },
   "selectMusics": {
     "TR": "Müzikleri Seç",
@@ -222,5 +222,25 @@
   "cynthOpen": {
     "TR": "Cynth zaten çalışıyor, veri kaybını önlemek için çalışan örneği kapatıp yeniden deneyin.\nDevam etmeniz önerilmez, devam etmek istiyor musunuz?",
     "EN": "Cynth is already running, close the running app and try again to prevent data lost.\nIt's not recommended to continue, do you want to continue?"
+  },
+  "wantUpdate": {
+    "TR": "Yeni bir sürüm mevcut, hemen güncellemek ister misiniz?",
+    "EN": "New version is available, do you want to update now?"
+  },
+  "badRequest": {
+    "TR": "YouTube'a istek gönderilirken hata oluştu.",
+    "EN": "An error occured when sending message to YouTube."
+  },
+  "rateLimit": {
+    "TR": "YouTube istek sınırı aşıldı, IP adresinizi yenilemeyi deneyin.",
+    "EN": "Rate limit exceed, try to change your IP."
+  },
+  "invalidRequest": {
+    "TR": "Geçersiz istek.",
+    "EN": "Invalid request."
+  },
+  "ytError": {
+    "TR": "YouTube'dan kaynaklı bir hata oluştu.",
+    "EN": "An error occured caused by YouTube."
   }
 }
